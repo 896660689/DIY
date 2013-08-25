@@ -1,0 +1,2 @@
+#!/bin/sh
+/opt/bin/dydns DyNaS DyNaS DyNaS.3322.org &

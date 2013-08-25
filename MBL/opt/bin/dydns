@@ -1,0 +1,8 @@
+#!/bin/sh
+while [ $# == 3 ]
+do
+	lynx -mime_header -auth=$1:$2 "http://members.3322.net/dyndns/update?system=dyndns&hostname=$3"
+	sleep 1800
+done
+
+echo "Usage: $0 <Username> <Password> <Domain>"
