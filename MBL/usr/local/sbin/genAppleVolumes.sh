@@ -1,10 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 #
-# � 2010 Western Digital Technologies, Inc. All rights reserved.
+# (c) 2013 Western Digital Technologies, Inc. All rights reserved.
 #
 # genAppleVolumes.sh <type>
 #   generates apple volumes files from shares list
-#PATH=/sbin:/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 
 . /usr/local/sbin/share-param.sh
 . /etc/system.conf
@@ -22,58 +21,71 @@ if [ "${backupEnabled}" = "false" ]; then
     backupShare=""
 fi
 
-backupShareOptions=""
-options="ea:sys options:usedots,upriv veto:\"/Temporary Items/Network Trash Folder/\""
-perm="perm:664"
+backupShareOptions="time machine = yes"
+if [ "$backupSizeLimit" -ne 0 ]; then
+    let "sizeLimitMb = ($backupSizeLimit * 1000000)/1048576"
+    shareSizeMb=`df "/shares/$backupShare" | awk '/^\// {printf("%.0f",$2/1024)}'`
+	if [ "$sizeLimitMb" -lt "$shareSizeMb" ]; then
+		backupShareOptions+=$'\n'
+		backupShareOptions+="vol size limit = ${sizeLimitMb}"
+	fi
+fi
+
+options="ea = auto"
+options+=$'\n'
+options+="convert appledouble = no"
+options+=$'\n'
+options+="stat vol = no"
+
+options+=$'\n'
+options+="veto = \"/Temporary Items/Network Trash Folder/\""
+
+
+perm="file perm = 664"
+perm+=$'\n'
+perm+="directory perm = 775"
 
 #PUBLIC share list
 getShares.sh public > /tmp/public-share-list
 while read publicshare; do
-	if [ "${backupShare}" = "${publicshare}" ]; then
-		backupShareOptions="${options},tm ${perm}"
+	echo "[${publicshare}]"
+	echo "path = /shares/${publicshare}"
+	if [ "${publicshare}" == "${backupShare}" ]; then
+		echo "${backupShareOptions}"
 	fi
-	if [ "Media" = "${publicshare}" ]; then
-		echo "/shares/${publicshare} ${publicshare} ${options} allow:admin,nobody rwlist:admin, rolist:nobody ${perm} ${AFP_VETO}"
-	else
-		echo "/shares/${publicshare} ${publicshare} ${options} ${perm} ${AFP_VETO}"
-	fi
-done < /tmp/public-share-list > /etc/netatalk/AppleVolumes.shares
+	echo "${options}" 
+	echo "${perm}"
+	echo ""
+	[ ! -z "${AFP_VETO}" ] && echo "veto files = ${AFP_VETO}"
+done < /tmp/public-share-list > /etc/nas/afp_share.conf
 
 #PRIVATE share list
 getShares.sh private > /tmp/private-share-list
 while read privateshare; do
 	rwList=`getAcl.sh ${privateshare} RW | awk '{printf("%s,",$0)}'`
 	roList=`getAcl.sh ${privateshare} RO | awk '{printf("%s,",$0)}'`
-        accessLists=" allow:${rwList}${roList}"
+    accessLists="valid users = ${rwList}${roList}"
 	if [ "${roList}" != "" ]; then
-		accessLists+=" rolist:${roList}"
+		accessLists+=$'\n'
+		accessLists+="rolist = ${roList}"
 	fi
 	if [ "${rwList}" != "" ]; then
-		accessLists+=" rwlist:${rwList}"
+		accessLists+=$'\n'
+		accessLists+="rwlist = ${rwList}"
 	fi
 
 	if [ "${rwList}" != "" ] || [ "${roList}" != "" ]; then
+		echo "[${privateshare}]"
+		echo "path = /shares/${privateshare}"
 		if [ "${backupShare}" = "${privateshare}" ]; then
-			backupShareOptions="${options},tm${accessLists} ${perm}"
+			echo "${backupShareOptions}"
 		fi
-		echo "/shares/${privateshare} ${privateshare} ${options}${accessLists} ${perm} ${AFP_VETO}"
+		echo "${options}" 
+		echo "${perm}"
+		echo "${accessLists}"
+		echo ""
+		[ ! -z "${AFP_VETO}" ] && echo "veto files = ${AFP_VETO}"
 	fi
-done < /tmp/private-share-list >> /etc/netatalk/AppleVolumes.shares
+done < /tmp/private-share-list >> /etc/nas/afp_share.conf
+exit 0
 
-cp /etc/netatalk/AppleVolumes.shares /etc/netatalk/AppleVolumes.tm
-
-# If the user specified a backup share that is present (indicated by populated
-# backup volume options) and has the required Time Machine directory, use the user
-# specified share for Time Machine.  If the user specified a backup size limit, convert it from
-# Mib to MB and make sure that it's smaller than the share's size before using.
-
-if [ ! -z "${backupShare}" ] && [ ! -z "${backupShareOptions}" ] && [ -d "/shares/$backupShare/TimeMachine" ]; then
-	if [ "$backupSizeLimit" -ne 0 ]; then
-	        let "sizeLimitMb = ($backupSizeLimit * 1000000)/1048576"
-        	shareSizeMb=`df "/shares/$backupShare" | awk '/^\// {printf("%.0f",$2/1024)}'`
-		if [ "$sizeLimitMb" -lt "$shareSizeMb" ]; then
-			backupShareOptions+=" volsizelimit:$sizeLimitMb"
-		fi
-	fi
-	echo "/shares/${backupShare}/TimeMachine TimeMachine ${backupShareOptions} ${AFP_VETO}" >> /etc/netatalk/AppleVolumes.tm
-fi
