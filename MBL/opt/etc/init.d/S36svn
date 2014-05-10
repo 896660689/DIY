@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		echo "Starting subversion daemon..."
+		svnserve -d -r /opt/share/svn
+		;;
+	stop)
+		echo "Shutting down subversion daemon..."
+		killall svnserve
+		;;
+	restart)
+		$0 stop
+		sleep 2
+		$0 start
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart}"
+esac
+

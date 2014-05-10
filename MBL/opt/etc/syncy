@@ -1,0 +1,25 @@
+
+config syncy
+	option syncpath '/DataVolume/shares/Media/Downloads:/Downloads:4'
+	option syncyerrlog '/var/log/SyncY.err'
+	option syncylog ''
+	option blocksize '10'
+	option ondup 'overwrite'
+	option datacache 'on'
+	option excludefiles '*/Thumbs.db'
+	option listnumber '100'
+	option retrytimes '3'
+	option retrydelay '3'
+	option maxsendspeed '0'
+	option maxrecvspeed '0'
+	option syncperiod '0-24'
+	option syncinterval '3600'
+
+config syncytoken
+	option device_code '422727bd7f6477b1d3a4c66a25cde6e9'
+	option refresh_token '27.d9b2835a9307947b3dadee100317697f.315360000.1715080360.906242104-2293434'
+	option synctotal '1'
+	option access_token '26.71282f611115b075fe4978daa3ae0eb1.2592000.1402312360.906242104-2293434'
+	option expires_in '2592000'
+	option refresh_date '1399720360'
+	option compress_date '1399720360'
