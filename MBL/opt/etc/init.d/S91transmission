@@ -3,7 +3,7 @@
 case "$1" in
 	start)
 		echo "Starting transmission daemon..."
-		/opt/bin/transmission-daemon -B -C -y -p 9091 -a *.*.*.* -g /opt/etc/transmission -w /shares/Media/Downloads --no-incomplete-dir -t -u admin -v asdf
+		/opt/bin/transmission-daemon -B -C -y -p 9091 -a *.*.*.* -g /opt/etc/transmission -w /shares/Media/Downloads/Temp --no-incomplete-dir -t -u admin -v asdf
 		sleep 1
 		/opt/bin/transmission-remote 127.0.0.1:9091 --auth=admin:asdf -tall --start
 		;;

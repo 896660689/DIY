@@ -6,8 +6,8 @@
 ## QQ: 57956720
 ## E-Mail: wishinlife@gmail.com
 ## Web Home: http://hi.baidu.com/wishinlife
-## Update date: 2014-05-03
-## VERSION: 1.0.10
+## Update date: 2014-05-12
+## VERSION: 1.0.11
 ## Required packages: python,python-curl,libopenssl,libcurl
 ## 
 ####################################################################################################
@@ -27,7 +27,7 @@ __CONFIG_FILE__ = '/opt/etc/syncy'
 __PIDFILE__ = '/var/run/syncy.pid'
 
 #  Don't modify the following.
-__VERSION__ = '1.0.10'
+__VERSION__ = '1.0.11'
 class SyncY:
 	def __init__(self,argv = sys.argv[1:]):
 		self._oldSTDERR = None
@@ -281,10 +281,10 @@ class SyncY:
 					break
 				elif re.findall(r'\s*config\s+syncytoken.*', line):
 					syncytoken = True
-					for key,value in savecfg.items():
-						if not(key in ['device_code','refresh_token','access_token','expires_in','refresh_date','compress_date','synctotal']):
-							line = "\toption " + key + " '" + str(value) + "'\n" + line
-							del savecfg[key]
+					for keyt,valuet in savecfg.items():
+						if not(keyt in ['device_code','refresh_token','access_token','expires_in','refresh_date','compress_date','synctotal']):
+							line = "\toption " + keyt + " '" + str(valuet) + "'\n" + line
+							del savecfg[keyt]
 					break
 			print line.strip('\n')
 		sycfg = open(__CONFIG_FILE__,'a')
