@@ -1,6 +1,8 @@
 YAAW
 ====
 
+汉化修改版的 YAAW，添加转到离线下载网站的链接。
+
 Yet Another Aria2 Web Frontend in pure HTML/CSS/Javascirpt.
 
 No HTTP server, backend or server-side program. All you need is just a browser.
@@ -10,7 +12,7 @@ No HTTP server, backend or server-side program. All you need is just a browser.
 Usage
 -----
 1. Run aria2 with RPC enabled
-> aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all
+> aria2c --enable-rpc --rpc-listen-all=true --rpc-allow-origin-all -c -D
 >
 > Warning: This options will not verify the identity of caller. KEEP THE ADDRESS SECRET.
 
@@ -63,3 +65,5 @@ License
 -------
 yaaw is licensed under GNU Lesser General Public License.
 You may get a copy of the GNU Lesser General Public License from http://www.gnu.org/licenses/lgpl.txt
+
+favicon.ico by [fangke](http://fangke.im/)
