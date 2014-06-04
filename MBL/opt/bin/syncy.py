@@ -5,9 +5,9 @@
 ## Author: wishinlife
 ## QQ: 57956720
 ## E-Mail: wishinlife@gmail.com
-## Web Home: http://hi.baidu.com/wishinlife
-## Update date: 2014-05-12
-## VERSION: 1.0.11
+## Web Home: http://syncyhome.duapp.com, http://hi.baidu.com/wishinlife
+## Update date: 2014-05-24
+## VERSION: 1.0.12
 ## Required packages: python,python-curl,libopenssl,libcurl
 ## 
 ####################################################################################################
@@ -27,7 +27,7 @@ __CONFIG_FILE__ = '/opt/etc/syncy'
 __PIDFILE__ = '/var/run/syncy.pid'
 
 #  Don't modify the following.
-__VERSION__ = '1.0.11'
+__VERSION__ = '1.0.12'
 class SyncY:
 	def __init__(self,argv = sys.argv[1:]):
 		self._oldSTDERR = None
@@ -164,9 +164,15 @@ class SyncY:
 				sys.stderr.write("%s ERROR: Get device token failed, error message: %s.\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._response_str))
 				sys.exit(1)
 		if self._config['syncyerrlog'] != '' and os.path.exists(os.path.dirname(self._config['syncyerrlog'])):
+			if os.path.exists(self._config['syncyerrlog']) and os.path.isdir(self._config['syncyerrlog']):
+				self._config['syncyerrlog'] += 'syncyerr.log'
+				self.__save_config()
 			self._oldSTDERR = sys.stderr
 			sys.stderr = open(self._config['syncyerrlog'],'a',0)
 		if self._config['syncylog'] != '' and os.path.exists(os.path.dirname(self._config['syncylog'])):
+			if os.path.exists(self._config['syncylog']) and os.path.isdir(self._config['syncylog']):
+				self._config['syncylog'] += 'syncy.log'
+				self.__save_config()
 			print('%s Running log output to log file:%s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._config['syncylog']))
 			self._oldSTDOUT = sys.stdout
 			sys.stdout = open(self._config['syncylog'],'a',0)
@@ -300,8 +306,8 @@ class SyncY:
 	def __save_data(self,rmd5,fmtime,fsize,fmd5):
 		sydb = open(self._syncydb,'ab')
 		rmd5 = rmd5.decode('hex')
-		fmtime = struct.pack('I',fmtime)
-		fsize = struct.pack('I', fsize % 4294967296)
+		fmtime = struct.pack('>I',fmtime)
+		fsize = struct.pack('>I', fsize % 4294967296)
 		sydb.write(rmd5 + fmtime + fsize + fmd5)
 		sydb.close()
 	def __write_data(self,rsp):
@@ -654,7 +660,7 @@ class SyncY:
 			elif os.path.isfile(fullpath):
 				fnstat = os.stat(fullpath)
 				md5 = hashlib.md5(fullpath[self._basedirlen:] + '\n').digest()
-				prk = struct.pack('I', int(fnstat.st_mtime)) + struct.pack('I', fnstat.st_size % 4294967296)
+				prk = struct.pack('>I', int(fnstat.st_mtime)) + struct.pack('>I', fnstat.st_size % 4294967296)
 				if self._config['datacache'] == 'on':
 					if self._syncData.has_key(md5) and self._syncData[md5][16:]:
 						sydbnew.write(self._syncData[md5] + md5)
@@ -719,8 +725,8 @@ class SyncY:
 		if rmd5 != '*':
 			rmd5 = rmd5.decode('hex')
 		if fmtime != '*':
-			fmtime = struct.pack('I',fmtime)
-		fsize = struct.pack('I', fsize % 4294967296)
+			fmtime = struct.pack('>I',fmtime)
+		fsize = struct.pack('>I', fsize % 4294967296)
 		if self._config['datacache'] == 'on':
 			if not(self._syncData.has_key(fmd5)):
 				return 0
@@ -1229,8 +1235,8 @@ class SyncY:
 				for j in xrange(len(syncInfo)):
 					rmd5,lmtime,lsize,lmd5 = syncInfo[j].split(' ')
 					rmd5 = rmd5.decode('hex')
-					lmtime = struct.pack('I',lmtime)
-					lsize = struct.pack('I', lsize % 4294967296)
+					lmtime = struct.pack('>I',lmtime)
+					lsize = struct.pack('>I', lsize % 4294967296)
 					lmd5 = lmd5.decode('hex')
 					sydbnew.write(rmd5 + lmtime + lsize + lmd5)
 				sydbnew.close()
