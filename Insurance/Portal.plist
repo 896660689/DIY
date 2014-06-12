@@ -25,13 +25,11 @@
 			<key>metadata</key>
 			<dict>
 				<key>bundle-identifier</key>
-				<string>com.alipay.wallet.rc</string>
+				<string>com.alipay.iphoneclient</string>
 				<key>bundle-version</key>
 				<string>8.2.0</string>
 				<key>kind</key>
 				<string>software</string>
-				<key>subtitle</key>
-				<string>支付宝钱包我的保障</string>
 				<key>title</key>
 				<string>支付宝钱包</string>
 			</dict>
