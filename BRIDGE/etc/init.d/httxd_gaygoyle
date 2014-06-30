@@ -1,0 +1,17 @@
+#/bin/sh /etc/rc.common
+START=94
+
+pid_httx="/var/run/httpd_gargoyle-httx.pid"
+
+start()
+{
+	iptables -I INPUT -p tcp --dport 81 -j ACCEPT
+	httpd_gargoyle -c cgi-bin/**\|**.sh\|**.cgi -d /wwx -u root -p 81 -i $pid_httx -DPF index.html
+}
+
+stop()
+{
+	if [ -f $pid_httx ] ; then
+		kill $(cat $pid_httx) 2>/dev/null
+	fi
+}
