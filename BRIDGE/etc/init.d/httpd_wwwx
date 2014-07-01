@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+#
+#
+START=57
+
+pid_httpx="/var/run/httpd_gargoyle-httpx.pid"
+
+start()
+{
+	echo Start http daemon for /wwwx
+	httpd_gargoyle -c cgi-bin/**\|**.sh\|**.cgi -d /wwwx -u root -p 81 -i $pid_httpx -DPF index.html
+}
+
+stop()
+{
+	if [ -f $pid_httpx ] ; then
+		echo Stop http daemon for /wwwx
+		kill $(cat $pid_httpx) 2>/dev/null
+	fi
+}
