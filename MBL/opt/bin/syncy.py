@@ -6,8 +6,8 @@
 ## QQ: 57956720
 ## E-Mail: wishinlife@gmail.com
 ## Web Home: http://syncyhome.duapp.com, http://hi.baidu.com/wishinlife
-## Update date: 2014-05-24
-## VERSION: 1.0.12
+## Update date: 2014-06-12
+## VERSION: 1.0.13
 ## Required packages: python,python-curl,libopenssl,libcurl
 ## 
 ####################################################################################################
@@ -18,7 +18,7 @@ import hashlib
 import time
 import re
 import struct
-import fileinput
+#import fileinput
 import pycurl
 from urllib import quote_plus
 
@@ -27,7 +27,7 @@ __CONFIG_FILE__ = '/opt/etc/syncy'
 __PIDFILE__ = '/var/run/syncy.pid'
 
 #  Don't modify the following.
-__VERSION__ = '1.0.12'
+__VERSION__ = '1.0.13'
 class SyncY:
 	def __init__(self,argv = sys.argv[1:]):
 		self._oldSTDERR = None
@@ -63,7 +63,6 @@ class SyncY:
 		self._syncydb = None
 		self._syncydbtmp = None
 		self._config = {
-			'syncpath'		: '', 
 			'syncyerrlog'	: '', 
 			'syncylog'		: '', 
 			'blocksize'		: 10, 
@@ -77,33 +76,40 @@ class SyncY:
 			'maxrecvspeed'	: 0,
 			'syncperiod'	: '0-24',
 			'syncinterval'	: 3600,
-			'synctotal'		: 0
 			}
+		self._syncytoken = {'synctotal': 0}
+		self._syncpath = {}
 		sycfg = open(__CONFIG_FILE__,'r')
 		line = sycfg.readline()
-		syncytoken = False
+		section = ''
 		while line:
 			if re.findall(r'^\s*#',line) or re.findall(r'^\s*$',line):
 				line = sycfg.readline()
 				continue
 			line = re.sub(r'#[^\']*$','',line)
-			m = re.findall(r'\s*config\s+syncytoken.*', line)
+			m = re.findall(r'\s*config\s+([^\s]+).*', line)
 			if m:
-				syncytoken = True
+				section = m[0]
+				if section == 'syncpath':
+					self._syncpath[str(len(self._syncpath))]={}
+				line = sycfg.readline()
+				continue
 			m = re.findall(r'\s*option\s+([^\s]+)\s+\'([^\']*)\'',line)
-			if m and syncytoken:
-				if m[0][0] in ['device_code','refresh_token','access_token','expires_in','refresh_date','compress_date','synctotal']:
+			if m:
+				if section == 'syncy':
 					self._config[m[0][0]] = m[0][1]
-			elif m:
-				self._config[m[0][0]] = m[0][1]
+				elif section == 'syncytoken':
+					self._syncytoken[m[0][0]] = m[0][1]
+				elif section == 'syncpath':
+					self._syncpath[str(len(self._syncpath) - 1)][m[0][0]] = m[0][1]
 			line = sycfg.readline()
 		sycfg.close()
 		self._config['retrytimes'] = int(self._config['retrytimes'])
 		self._config['retrydelay'] = int(self._config['retrydelay'])
 		self._config['maxsendspeed'] = int(self._config['maxsendspeed'])
 		self._config['maxrecvspeed'] = int(self._config['maxrecvspeed'])
-		if not(self._config.has_key('refresh_token')) or self._config['refresh_token'] == '' or (len(self._argv) !=0 and self._argv[0] in ["sybind","cpbind"]):
-			if ((not(self._config.has_key('device_code')) or self._config['device_code'] == '') and len(self._argv) == 0) or (len(self._argv) != 0 and self._argv[0] == "sybind"):
+		if not(self._syncytoken.has_key('refresh_token')) or self._syncytoken['refresh_token'] == '' or (len(self._argv) !=0 and self._argv[0] in ["sybind","cpbind"]):
+			if ((not(self._syncytoken.has_key('device_code')) or self._syncytoken['device_code'] == '') and len(self._argv) == 0) or (len(self._argv) != 0 and self._argv[0] == "sybind"):
 				http_code = self.__curl_request('https://syncyhome.duapp.com/syserver','method=bind_device&scope=basic,netdisk','POST','normal')
 				if http_code != 200:
 					sys.stderr.write("%s ERROR: Get device code failed, %s.\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._response_str))
@@ -121,7 +127,7 @@ class SyncY:
 					sybind.write('{"user_code":"%s","device_code":"%s","time":%d}' % (user_code, device_code, int(time.time())))
 					sybind.close()
 					sys.exit(0)
-				self._config['device_code'] = device_code
+				self._syncytoken['device_code'] = device_code
 				print("Device binding Guide:")
 				print("     1. Open web browser to visit:\"https://openapi.baidu.com/device\" and input user code to binding your baidu account.")
 				print(" ")
@@ -137,25 +143,25 @@ class SyncY:
 				m = re.findall(r'.*\"device_code\":\"([0-9a-z]+)\".*',bindinfo)
 				os.remove("/tmp/syncy.bind")
 				if m:
-					self._config['device_code'] = m[0]
+					self._syncytoken['device_code'] = m[0]
 					m = re.findall(r'.*\"time\":([0-9]+).*',bindinfo)
 					if int(time.time()) - int(m[0]) >= 1800:
 						sys.exit(1)
 				else:
 					sys.exit(1)
-			http_code = self.__curl_request('https://syncyhome.duapp.com/syserver','method=get_device_token&code=%s' % (self._config['device_code']),'POST','normal')
+			http_code = self.__curl_request('https://syncyhome.duapp.com/syserver','method=get_device_token&code=%s' % (self._syncytoken['device_code']),'POST','normal')
 			if http_code != 200 or self._response_str == '':
 				sys.stderr.write("%s ERROR: Get device token failed, error message: %s.\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._response_str))
 				sys.exit(1)
 			m = re.findall(r'.*\"refresh_token\":\"([^"]+)\".*',self._response_str)
 			if m:
-				self._config['refresh_token'] = m[0]
+				self._syncytoken['refresh_token'] = m[0]
 				m = re.findall(r'.*\"access_token\":\"([^"]+)\".*',self._response_str)
-				self._config['access_token'] = m[0]
+				self._syncytoken['access_token'] = m[0]
 				m = re.findall(r'.*\"expires_in\":([0-9]+).*',self._response_str)
-				self._config['expires_in'] = m[0]
-				self._config['refresh_date'] = int(time.time())
-				self._config['compress_date'] = int(time.time())
+				self._syncytoken['expires_in'] = m[0]
+				self._syncytoken['refresh_date'] = int(time.time())
+				self._syncytoken['compress_date'] = int(time.time())
 				self.__save_config()
 				if len(self._argv) != 0 and self._argv[0] == "cpbind":
 					sys.exit(0)
@@ -178,10 +184,11 @@ class SyncY:
 			sys.stdout = open(self._config['syncylog'],'a',0)
 		self._config['blocksize'] = int(self._config['blocksize'])
 		self._config['listnumber'] = int(self._config['listnumber'])
-		self._config['synctotal'] = int(self._config['synctotal'])
 		self._config['syncinterval'] = int(self._config['syncinterval'])
-		self._config['refresh_date'] = int(self._config['refresh_date'])
-		self._config['expires_in'] = int(self._config['expires_in'])
+		self._syncytoken['refresh_date'] = int(self._syncytoken['refresh_date'])
+		self._syncytoken['expires_in'] = int(self._syncytoken['expires_in'])
+		self._syncytoken['compress_date'] = int(self._syncytoken['compress_date'])
+		self._syncytoken['synctotal'] = int(self._syncytoken['synctotal'])
 		if self._config['blocksize'] < 1:
 			self._config['blocksize'] = 10
 			print('%s WARNING: "blocksize" must great than or equal to 1(M), set to default 10(M).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
@@ -209,7 +216,7 @@ class SyncY:
 		if self._config['maxrecvspeed'] < 0:
 			self._config['maxrecvspeed'] = 0
 			print('%s WARNING: "maxrecvspeed" must great than or equal to 0, set to default 100.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
-		if (self._config['refresh_date'] + self._config['expires_in'] - 864000) < int(time.time()):
+		if (self._syncytoken['refresh_date'] + self._syncytoken['expires_in'] - 864000) < int(time.time()):
 			self.__check_expires()
 		exfiles = self._config['excludefiles']
 		exfiles = exfiles.replace(".","\.").replace("*",".*").replace("?",".?")
@@ -257,18 +264,18 @@ class SyncY:
 		if http_code == 200 and lastVer != __VERSION__:
 			sys.stderr.write('%s %s\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), smessage))
 			print('%s %s' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), smessage))
-		http_code = self.__curl_request('https://syncyhome.duapp.com/syserver','method=refresh_access_token&refresh_token=%s' % (self._config['refresh_token']),'POST','normal')
+		http_code = self.__curl_request('https://syncyhome.duapp.com/syserver','method=refresh_access_token&refresh_token=%s' % (self._syncytoken['refresh_token']),'POST','normal')
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Refresh access token failed: %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._response_str))
 			return 1
 		m = re.findall(r'.*\"refresh_token\":\"([^"]+)\".*',self._response_str)
 		if m:
-			self._config['refresh_token'] = m[0]
+			self._syncytoken['refresh_token'] = m[0]
 			m = re.findall(r'.*\"access_token\":\"([^"]+)\".*',self._response_str)
-			self._config['access_token'] = m[0]
+			self._syncytoken['access_token'] = m[0]
 			m = re.findall(r'.*\"expires_in\":([0-9]+).*',self._response_str)
-			self._config['expires_in'] = m[0]
-			self._config['refresh_date'] = int(time.time())
+			self._syncytoken['expires_in'] = m[0]
+			self._syncytoken['refresh_date'] = int(time.time())
 			self.__save_config()
 			print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' Refresh access token success.')
 			return 0
@@ -276,33 +283,21 @@ class SyncY:
 			sys.stderr.write('%s ERROR: Refresh access token failed: %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._response_str))
 			return 1
 	def __save_config(self):
-		savecfg = self._config.copy()
-		syncytoken = False
-		for line in fileinput.input(__CONFIG_FILE__,inplace=1):
-			for key,value in savecfg.items():
-				m = re.subn(eval('r"\s*option\s+' + key + '\s+\'([^\']*)\'.*"'),"\toption " + key + " '" + str(value) + "'",line,1)
-				if m[1] == 1:
-					del savecfg[key]
-					line = m[0]
-					break
-				elif re.findall(r'\s*config\s+syncytoken.*', line):
-					syncytoken = True
-					for keyt,valuet in savecfg.items():
-						if not(keyt in ['device_code','refresh_token','access_token','expires_in','refresh_date','compress_date','synctotal']):
-							line = "\toption " + keyt + " '" + str(valuet) + "'\n" + line
-							del savecfg[keyt]
-					break
-			print line.strip('\n')
-		sycfg = open(__CONFIG_FILE__,'a')
-		if len(savecfg) > 0 and not syncytoken:
-			sycfg.write("\nconfig syncytoken\n")
-		for key,value in savecfg.items():
-			if key in ['device_code','refresh_token','access_token','expires_in','refresh_date','compress_date','synctotal']:
+		sycfg = open(__CONFIG_FILE__ + '.sybak', 'w')
+		sycfg.write("\nconfig syncy\n")
+		for key,value in self._config.items():
+			sycfg.write("\toption " + key + " '" + str(value) + "'\n")
+		sycfg.write("\nconfig syncytoken\n")
+		for key,value in self._syncytoken.items():
+			sycfg.write("\toption " + key + " '" + str(value) + "'\n")
+		for i in range(len(self._syncpath)):
+			sycfg.write("\nconfig syncpath\n")
+			for key,value in self._syncpath[str(i)].items():
 				sycfg.write("\toption " + key + " '" + str(value) + "'\n")
 		sycfg.close()
 		pmeta = os.stat(os.path.dirname(__CONFIG_FILE__))
-		os.lchown(__CONFIG_FILE__,pmeta.st_uid,pmeta.st_gid)
-
+		os.rename(__CONFIG_FILE__ + '.sybak', __CONFIG_FILE__)
+		os.lchown(__CONFIG_FILE__, pmeta.st_uid, pmeta.st_gid)
 	def __save_data(self,rmd5,fmtime,fsize,fmd5):
 		sydb = open(self._syncydb,'ab')
 		rmd5 = rmd5.decode('hex')
@@ -331,7 +326,6 @@ class SyncY:
 		if self._config['maxrecvspeed'] != 0:
 			curl.setopt(pycurl.MAX_RECV_SPEED_LARGE, self._config['maxrecvspeed'])
 		curl.setopt(pycurl.HEADER, 0)
-		#curl.setopt(pycurl.VERBOSE,1)
 		retrycnt = 0
 		while retrycnt <= self._config['retrytimes']:
 			try:
@@ -356,7 +350,6 @@ class SyncY:
 					if os.path.exists(fnname):
 						drange = str(os.stat(fnname).st_size) + '-'
 						curl.setopt(pycurl.RANGE, drange)
-
 					dlFile = open(fnname, 'ab')
 					curl.setopt(pycurl.WRITEDATA, dlFile)
 					curl.perform()
@@ -408,7 +401,7 @@ class SyncY:
 		fullpath = re.sub(r'/$','',fullpath)
 		return fullpath
 	def __get_pcs_quota(self):
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/quota?method=info&access_token=%s' % (self._config['access_token']),'','GET','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/quota?method=info&access_token=%s' % (self._syncytoken['access_token']),'','GET','normal')
 		if http_code != 200: 
 			sys.stderr.write('%s ERROR: Get pcs quota failed(http code:%d),%s.\n' %(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, self._response_str))
 			return 1
@@ -424,14 +417,14 @@ class SyncY:
 			return 1
 	def __get_pcs_filemeta(self,filepath):
 		uripath = quote_plus(filepath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=meta&access_token=%s&path=%s' % (self._config['access_token'], uripath),'','GET','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=meta&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','GET','normal')
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Get file meta failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
 		return 0
 	def __get_pcs_filelist(self,pcspath,startindex,endindex):
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=list&access_token=%s&path=%s&limit=%d-%d&by=name&order=asc' % (self._config['access_token'], uripath, startindex, endindex),'','GET','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=list&access_token=%s&path=%s&limit=%d-%d&by=name&order=asc' % (self._syncytoken['access_token'], uripath, startindex, endindex),'','GET','normal')
 		if http_code != 200:
 			m = self._re['error_code'].findall(self._response_str)
 			if m and int(m[0]) == 31066:
@@ -451,7 +444,7 @@ class SyncY:
 		return 0,fileList
 	def __upload_file_nosync(self,filepath,pcspath):
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=newcopy' % (self._config['access_token'], uripath),'','POST','upfile',filepath)
+		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=newcopy' % (self._syncytoken['access_token'], uripath),'','POST','upfile',filepath)
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Upload file to pcs failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
@@ -459,7 +452,7 @@ class SyncY:
 		return 0
 	def __upload_file(self,filepath,fmtime,fsize,pcspath,fmd5,ondup):
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=%s' % (self._config['access_token'], uripath, ondup),'','POST','upfile',filepath)
+		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, ondup),'','POST','upfile',filepath)
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Upload file to pcs failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
@@ -479,7 +472,7 @@ class SyncY:
 			return self.__upload_file(filepath,fmtime,fsize,pcspath,fmd5,ondup)
 		contentmd5,slicemd5 = self.__rapid_md5sum(filepath)
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&access_token=%s&path=%s&content-length=%d&content-md5=%s&slice-md5=%s&ondup=%s' % (self._config['access_token'], uripath, fsize, contentmd5, slicemd5, ondup),'','POST','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&access_token=%s&path=%s&content-length=%d&content-md5=%s&slice-md5=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, fsize, contentmd5, slicemd5, ondup),'','POST','normal')
 		if http_code != 200:
 			m = self._re['error_code'].findall(self._response_str)
 			if m and int(m[0]) == 31079:
@@ -542,7 +535,7 @@ class SyncY:
 				upBlockLen = fsize - startblk * 1048576
 				upblkcount = self._config['blocksize'] + 1
 			sliceRange = str(startblk * 1048576) + ':' + str(upBlockLen)
-			http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&type=tmpfile' % (self._config['access_token']),sliceRange,'POST','upfile',filepath)
+			http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&type=tmpfile' % (self._syncytoken['access_token']),sliceRange,'POST','upfile',filepath)
 			if http_code != 200:
 				sys.stderr.write('%s ERROR: Slice upload file failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 				return 1
@@ -557,7 +550,7 @@ class SyncY:
 			startblk += upblkcount
 		param += ']}'
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&access_token=%s&path=%s&ondup=%s' % (self._config['access_token'], uripath, ondup),param,'POST','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&access_token=%s&path=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, ondup),param,'POST','normal')
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Create superfile failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
@@ -590,7 +583,7 @@ class SyncY:
 			dlfn.write('download %s %d\n' % (rmd5, rsize))
 			dlfn.close()
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&access_token=%s&path=%s' % (self._config['access_token'], uripath),'','GET','downfile',filepath)
+		http_code = self.__curl_request('https://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','GET','downfile',filepath)
 		if http_code != 200 and http_code != 206:
 			sys.stderr.write('%s ERROR: Download file failed(http code:%d): "%s".\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath))
 			return 1
@@ -605,7 +598,7 @@ class SyncY:
 		return 0
 	def __rm_pcsfile(self,pcspath,slient = ''):
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=delete&access_token=%s&path=%s' % (self._config['access_token'], uripath),'','POST','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=delete&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','POST','normal')
 		if http_code !=200:
 			sys.stderr.write('%s ERROR: Delete remote file failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath, self._response_str))
 			return 1
@@ -615,7 +608,7 @@ class SyncY:
 	def __mv_pcsfile(self,oldpcspath,newpcspath):
 		uripaths = quote_plus(oldpcspath)
 		uripathd = quote_plus(newpcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=move&access_token=%s&from=%s&to=%s' % (self._config['access_token'], uripaths, uripathd),'','POST','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=move&access_token=%s&from=%s&to=%s' % (self._syncytoken['access_token'], uripaths, uripathd),'','POST','normal')
 		if http_code != 200:
 			sys.stderr.write('%s ERROR: Move remote file or directory "%s" to "%s" failed(http code:%d): %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), oldpcspath, newpcspath, http_code, self._response_str))
 			return 1
@@ -712,8 +705,8 @@ class SyncY:
 				sydbnew.close()
 				os.rename(self._syncydbtmp,self._syncydb)
 		if  pathname == '':
-			self._config['compress_date'] = int(time.time())
-			self._config['synctotal'] = 0
+			self._syncytoken['compress_date'] = int(time.time())
+			self._syncytoken['synctotal'] = 0
 			self.__save_config()
 			print("%s Sync data compress completed." % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 	def __check_excludefiles(self,filepath):
@@ -1141,51 +1134,51 @@ class SyncY:
 		return 0
 	def __start_syncy(self):
 		self.__get_pcs_quota()
-		for ipath in self._config['syncpath'].split(';'):
-			if ipath == '':
+		for i in range(len(self._syncpath)):
+			if not(self._syncpath[str(i)].has_key("localpath")) or not(self._syncpath[str(i)].has_key("remotepath")) or not(self._syncpath[str(i)].has_key("synctype")) or not(self._syncpath[str(i)].has_key("enable")):
+				sys.stderr.write('%s ERROR: The %d\'s of syncpath setting is invalid.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), i+1))
+				continue
+			if self._syncpath[str(i)]['enable'] == '0':
 				continue
 			self._synccount = 0
 			self._failcount = 0
 			self._errorcount = 0
+			ipath = ('%s:%s:%s' % (self._syncpath[str(i)]['localpath'], self._syncpath[str(i)]['remotepath'], self._syncpath[str(i)]['synctype']))
 			print('%s Start sync path: "%s".' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath))
-			sypath = ipath.split(':')
-			if len(sypath) != 3:
-				sys.stderr.write('%s ERROR: Sync path invalid: "%s".' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath))
-				continue
-			sypath[0] = self.__catpath(sypath[0])
-			sypath[1] = self.__catpath(self._pcsroot, sypath[1])
+			localpath = self.__catpath(self._syncpath[str(i)]['localpath'])
+			remotepath = self.__catpath(self._pcsroot, self._syncpath[str(i)]['remotepath'])
 			ckdir = 0
-			for rdir in sypath[1].split('/'):
+			for rdir in remotepath.split('/'):
 				if self._re['pcspath'].findall(rdir):
 					ckdir = 1
 					break
 			if ckdir != 0:
 				sys.stderr.write('%s ERROR: Sync "%s" failed, remote directory error.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath))
 				continue
-			if not(os.path.exists(sypath[0])):
-				os.mkdir(sypath[0])
-				pmeta = os.stat(os.path.dirname(sypath[0]))
-				os.lchown(sypath[0],pmeta.st_uid,pmeta.st_gid)
-			if sypath[0] != '' and os.path.isdir(sypath[0]):
-				self._syncydb = sypath[0] + '/.syncy.info.db'
+			if not(os.path.exists(localpath)):
+				os.mkdir(localpath)
+				pmeta = os.stat(os.path.dirname(localpath))
+				os.lchown(localpath,pmeta.st_uid,pmeta.st_gid)
+			if localpath != '' and os.path.isdir(localpath):
+				self._syncydb = localpath + '/.syncy.info.db'
 				if self._config['datacache'] == 'on':
 					self.__init_syncdata()
 				else:
 					self._sydblen = os.stat(self._syncydb).st_size
 					self._sydb = open(self._syncydb,'rb')
-				self._basedirlen = len(sypath[0])
-				if sypath[2].lower() in ['0','u','upload']:
-					self.__syncy_upload(sypath[0],sypath[1])
-				elif sypath[2].lower() in ['1','u+','upload+']:
-					self.__syncy_uploadplus(sypath[0],sypath[1])
-				elif sypath[2].lower() in ['2','d','download']:
-					self.__syncy_download(sypath[0],sypath[1])
-					self._config['synctotal'] += self._synccount
+				self._basedirlen = len(localpath)
+				if self._syncpath[str(i)]['synctype'].lower() in ['0','u','upload']:
+					self.__syncy_upload(localpath,remotepath)
+				elif self._syncpath[str(i)]['synctype'].lower() in ['1','u+','upload+']:
+					self.__syncy_uploadplus(localpath,remotepath)
+				elif self._syncpath[str(i)]['synctype'].lower() in ['2','d','download']:
+					self.__syncy_download(localpath,remotepath)
+					self._syncytoken['synctotal'] += self._synccount
 					self.__save_config()
-				elif sypath[2].lower() in ['3','d+','download+']:
-					self.__syncy_downloadplus(sypath[0],sypath[1])
-				elif sypath[2].lower() in ['4','s','sync']:
-					self.__syncy_sync(sypath[0],sypath[1])
+				elif self._syncpath[str(i)]['synctype'].lower() in ['3','d+','download+']:
+					self.__syncy_downloadplus(localpath,remotepath)
+				elif self._syncpath[str(i)]['synctype'].lower() in ['4','s','sync']:
+					self.__syncy_sync(localpath,remotepath)
 				else:
 					sys.stderr.write('%s Error: The "synctype" of "%s" is invalid, must set to [0 - 4], skiped.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath))
 					print('%s Error: The "synctype" of "%s" is invalid, must set to [0 - 4], skiped.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath))
@@ -1195,7 +1188,7 @@ class SyncY:
 				else:
 					self._sydb.close()
 				if self._failcount == 0 and self._errorcount == 0:
-					if not(sypath[2].lower() in ['2','d','download']):
+					if not(self._syncpath[str(i)]['synctype'].lower() in ['2','d','download']):
 						self.__start_compress(ipath)
 					print('%s Sync path: "%s" complete, Success sync %d files.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), ipath, self._synccount))
 				else:
@@ -1259,7 +1252,7 @@ class SyncY:
 					if (endhour > starthour and curhour >= starthour and curhour < endhour) or (endhour < starthour and (curhour < starthour or curhour >= endhour)):
 						self.__start_syncy()
 						time.sleep(self._config['syncinterval'])
-						if (self._config['refresh_date'] + self._config['expires_in'] - 864000) < int(time.time()):
+						if (self._syncytoken['refresh_date'] + self._syncytoken['expires_in'] - 864000) < int(time.time()):
 							self.__check_expires()
 					else:
 						time.sleep(300)

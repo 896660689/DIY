@@ -1,6 +1,5 @@
 
 config syncy
-	option syncpath '/DataVolume/shares/Media/Downloads:/Downloads:sync'
 	option syncyerrlog '/var/log/SyncY.err'
 	option syncylog '/var/log/SyncY.log'
 	option blocksize '10'
@@ -14,3 +13,11 @@ config syncy
 	option maxrecvspeed '0'
 	option syncperiod '0-24'
 	option syncinterval '3600'
+
+config syncpath
+	option localpath '/DataVolume/shares/Media/Downloads'
+	option remotepath '/Downloads'
+	option enable '1'
+	option synctype 'sync'
+
+config syncytoken
