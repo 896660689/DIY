@@ -7,6 +7,7 @@ cd /etc/apache2/mods-enabled/
 ln -s ../mods-available/autoindex.load
 ln -s ../mods-available/autoindex.conf
 ln -s ../mods-available/cgi.load
+ln -s ../mods-available/auth_basic.load
 
 cd /var/www
 ln -s /shares/Media ./media

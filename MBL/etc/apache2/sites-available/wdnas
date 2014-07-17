@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-	ServerAdmin webmaster@localhost
+	ServerAdmin Yonsm@msn.com
 
 	DocumentRoot /var/www/
 
@@ -33,10 +33,26 @@
 	</Directory>
 
 	<Directory /var/www/>
-		Options ExecCGI Indexes FollowSymLinks MultiViews
-		AllowOverride All
+		Options Indexes ExecCGI FollowSymLinks MultiViews
+		AllowOverride None
 		Order allow,deny
 		allow from all
+	</Directory>
+
+	<Directory /var/www/media/>
+		ReadmeName /appletv/medex.htm
+	#	RewriteEngine on
+	#	RewriteBase /
+	#	RewriteRule ^(.*\.mkv)$ /cgi-bin/mplay.py?/shares/Media/$1 [R,NC]
+	#	RewriteRule ^(.*\.mkv).(q.)$ /cgi-bin/mplay.py?/shares/Media/$1&$2 [R,NC]
+		Order deny,allow
+		Deny from all
+		AuthName "Authorization Required"
+		AuthUserFile /etc/apache2/htpasswd
+		AuthType Basic
+		Require valid-user
+		Allow from 192.168
+		Satisfy Any
 	</Directory>
 
     # block application folders from being served
@@ -68,7 +84,7 @@
 	</Directory>
 
     # comment this line if remote WebUI access is needed (WAN access)
-    Include /tmp/allow.conf
+    #Include /tmp/allow.conf
     
 	<Directory "/var/www/UI">
         RewriteEngine on

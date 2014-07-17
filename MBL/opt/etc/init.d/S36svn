@@ -1,20 +1,38 @@
 #!/bin/sh
+#
+# start/stop subversion daemon.
+
+DAEMON=/opt/bin/svnserve
+OPTIONS=" -d -r /opt/share/svn "
+
+test -f $DAEMON || exit 0
 
 case "$1" in
-	start)
-		echo "Starting subversion daemon..."
-		svnserve -d -r /opt/share/svn
-		;;
-	stop)
-		echo "Shutting down subversion daemon..."
-		killall svnserve
-		;;
-	restart)
-		$0 stop
-		sleep 2
-		$0 start
-		;;
-	*)
-		echo $"Usage: $0 {start|stop|restart}"
+        start)
+                echo -n "Starting subversion daemon:"
+                echo -n " svnserve "
+                start-stop-daemon --start --quiet --oknodo --user admin --exec $DAEMON --$OPTIONS
+                echo "."
+                ;;
+        stop)
+                echo -n "Stopping subversion daemon:"
+                echo -n " svnserve "
+                start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
+                echo "."
+                ;;
+        reload)
+                ;;
+        force-reload)
+                $0 restart
+                ;;
+        restart)
+                $0 stop
+                $0 start
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|reload|restart}"
+                exit 1
+                ;;
 esac
 
+exit 0

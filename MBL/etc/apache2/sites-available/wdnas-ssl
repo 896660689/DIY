@@ -9,7 +9,7 @@
     </Directory>
     <Directory /var/www/>
         Options ExecCGI Indexes FollowSymLinks MultiViews
-        AllowOverride All
+        AllowOverride None
         Order allow,deny
         allow from all
     </Directory>
