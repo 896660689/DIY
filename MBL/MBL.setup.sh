@@ -23,3 +23,7 @@ conf-file=/opt/etc/dnsmasq.custom
 echo "#deb http://ftp.us.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
 apt-get update
 apt-get install python2.7
+cd /usr/bin
+ln -sf python2.7 python
+apt-cache search pycurl
+apt-get install python-pycurl
