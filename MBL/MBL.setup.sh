@@ -19,3 +19,7 @@ ipkg install lynx
 
 ipkg install dnsmasq
 conf-file=/opt/etc/dnsmasq.custom
+
+echo "deb http://ftp.us.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
+apt-get update
+apt-get install python2.7

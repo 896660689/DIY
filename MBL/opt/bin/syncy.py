@@ -6,8 +6,8 @@
 ## QQ: 57956720
 ## E-Mail: wishinlife@gmail.com
 ## Web Home: http://syncyhome.duapp.com, http://hi.baidu.com/wishinlife
-## Update date: 2014-06-12
-## VERSION: 1.0.13
+## Update date: 2014-08-06
+## VERSION: 1.0.14
 ## Required packages: python,python-curl,libopenssl,libcurl
 ## 
 ####################################################################################################
@@ -27,7 +27,7 @@ __CONFIG_FILE__ = '/opt/etc/syncy'
 __PIDFILE__ = '/var/run/syncy.pid'
 
 #  Don't modify the following.
-__VERSION__ = '1.0.13'
+__VERSION__ = '1.0.14'
 class SyncY:
 	def __init__(self,argv = sys.argv[1:]):
 		self._oldSTDERR = None
@@ -274,7 +274,7 @@ class SyncY:
 			m = re.findall(r'.*\"access_token\":\"([^"]+)\".*',self._response_str)
 			self._syncytoken['access_token'] = m[0]
 			m = re.findall(r'.*\"expires_in\":([0-9]+).*',self._response_str)
-			self._syncytoken['expires_in'] = m[0]
+			self._syncytoken['expires_in'] = int(m[0])
 			self._syncytoken['refresh_date'] = int(time.time())
 			self.__save_config()
 			print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' Refresh access token success.')
