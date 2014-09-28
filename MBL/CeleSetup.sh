@@ -28,13 +28,38 @@ cd /usr/local/mediacrawler
 ./mediacrawlerd disable
 
 #
- mkdir /usr/ffmpeg
- cd /usr/ffmpeg
- tar xzf ../ffmpeg.tgz
- mv bin/* /usr/bin/
- mv lib/powerpc-linux-gnu/* /usr/lib/powerpc-linux-gnu/
-cd ..
-rm -rf ffmpeg
+cd /usr/lib/powerpc-linux-gnu
+ln -s ibXfixes.so.3.1.0				libXfixes.so.3
+ln -s libaacplus.so.2.0.2			libaacplus.so.2
+ln -s libass.so.4.1.0				libass.so.4
+ln -s libavcodec.so.54.59.100		libavcodec.so.54
+ln -s libavdevice.so.54.2.101		libavdevice.so.54
+ln -s libavfilter.so.3.17.100		libavfilter.so.3
+ln -s libavformat.so.54.29.104		libavformat.so.54
+ln -s libavutil.so.51.73.101		libavutil.so.51
+ln -s libbluray.so.1.2.0			libbluray.so.1
+ln -s libcdio.so.13.0.0				libcdio.so.13
+ln -s libcdio_cdda.so.1.0.0			libcdio_cdda.so.1
+ln -s libcdio_paranoia.so.1.0.0		libcdio_paranoia.so.1
+ln -s libenca.so.0.5.1				libenca.so.0
+ln -s libfaac.so.0.0.0				libfaac.so.0
+ln -s libfontconfig.so.1.5.0		libfontconfig.so.1
+ln -s libfribidi.so.0.3.3			libfribidi.so.0
+ln -s libjack.so.0.0.28				libjack.so.0
+ln -s libmp3lame.so.0.0.0			libmp3lame.so.0
+ln -s libopencore-amrnb.so.0.0.3	libopencore-amrnb.so.0
+ln -s libopencore-amrwb.so.0.0.3	libopencore-amrwb.so.0
+ln -s libopus.so.0.2.0				libopus.so.0
+ln -s libpostproc.so.52.0.100		libpostproc.so.52
+ln -s libswresample.so.0.15.100		libswresample.so.0
+ln -s libswscale.so.2.1.101			libswscale.so.2
+ln -s libtalloc.so.2.0.7			libtalloc.so.2
+ln -s libtdb.so.1.2.10				libtdb.so.1
+ln -s libvo-aacenc.so.0.0.3			libvo-aacenc.so.0
+ln -s libvo-amrwbenc.so.0.0.3		libvo-amrwbenc.so.0
+ln -s libvpx.so.1.1.0				libvpx.so.1
+ln -s libvpx.so.1.1.0				libvpx.so.1.1
+ln -s libxvidcore.so.4.3			libxvidcore.so.4
 
 #cd /opt
 #pkg update
