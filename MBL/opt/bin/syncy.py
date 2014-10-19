@@ -6,9 +6,9 @@
 ## QQ: 57956720
 ## E-Mail: wishinlife@gmail.com
 ## Web Home: http://syncyhome.duapp.com, http://hi.baidu.com/wishinlife
-## Update date: 2014-08-06
-## VERSION: 1.0.14
-## Required packages: python,python-curl,libopenssl,libcurl
+## Update date: 2014-10-18
+## VERSION: 1.0.15
+## Required packages: kmod-nls-utf8,libopenssl,libcurl,python,python-mini,python-curl
 ## 
 ####################################################################################################
 
@@ -18,6 +18,8 @@ import hashlib
 import time
 import re
 import struct
+#import binascii
+import zlib
 #import fileinput
 import pycurl
 from urllib import quote_plus
@@ -27,7 +29,7 @@ __CONFIG_FILE__ = '/opt/etc/syncy'
 __PIDFILE__ = '/var/run/syncy.pid'
 
 #  Don't modify the following.
-__VERSION__ = '1.0.14'
+__VERSION__ = '1.0.15'
 class SyncY:
 	def __init__(self,argv = sys.argv[1:]):
 		self._oldSTDERR = None
@@ -68,6 +70,7 @@ class SyncY:
 			'blocksize'		: 10, 
 			'ondup'			: 'rename', 
 			'datacache'		: 'on', 
+			'slicedownload'	: 'on',
 			'excludefiles'	: '',
 			'listnumber'	: 100, 
 			'retrytimes'	: 3,
@@ -89,7 +92,7 @@ class SyncY:
 			line = re.sub(r'#[^\']*$','',line)
 			m = re.findall(r'\s*config\s+([^\s]+).*', line)
 			if m:
-				section = m[0]
+				section = m[0].strip('\'')
 				if section == 'syncpath':
 					self._syncpath[str(len(self._syncpath))]={}
 				line = sycfg.readline()
@@ -97,11 +100,11 @@ class SyncY:
 			m = re.findall(r'\s*option\s+([^\s]+)\s+\'([^\']*)\'',line)
 			if m:
 				if section == 'syncy':
-					self._config[m[0][0]] = m[0][1]
+					self._config[m[0][0].strip('\'')] = m[0][1]
 				elif section == 'syncytoken':
-					self._syncytoken[m[0][0]] = m[0][1]
+					self._syncytoken[m[0][0].strip('\'')] = m[0][1]
 				elif section == 'syncpath':
-					self._syncpath[str(len(self._syncpath) - 1)][m[0][0]] = m[0][1]
+					self._syncpath[str(len(self._syncpath) - 1)][m[0][0].strip('\'')] = m[0][1]
 			line = sycfg.readline()
 		sycfg.close()
 		self._config['retrytimes'] = int(self._config['retrytimes'])
@@ -135,7 +138,7 @@ class SyncY:
 				print("     (The user code is available for 30 minutes.)")
 				print(" ")
 				raw_input('     3. After granting access to the application, come back here and press [Enter] to continue.')
-				print " "
+				print(" ")
 			if len(self._argv) != 0 and self._argv[0] == "cpbind":
 				sybind = open("/tmp/syncy.bind", 'r')
 				bindinfo = sybind.read()
@@ -197,7 +200,10 @@ class SyncY:
 			print('%s WARNING: ondup is invalid, set to default(overwrite).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 		if self._config['datacache'] != 'on' and self._config['datacache'] != 'off':
 			self._config['datacache'] = 'on'
-			print('%s WARNING: "datacache" is invalid, set to default(off).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+			print('%s WARNING: "datacache" is invalid, set to default(on).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+		if self._config['slicedownload'] != 'on' and self._config['slicedownload'] != 'off':
+			self._config['slicedownload'] = 'on'
+			print('%s WARNING: "slicedownload" is invalid, set to default(on).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
 		if self._config['retrytimes'] < 0:
 			self._config['retrytimes'] = 3
 			print('%s WARNING: "retrytimes" is invalid, set to default(3 times).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
@@ -224,6 +230,7 @@ class SyncY:
 		for i in xrange(len(self._excludefiles)):
 			self._excludefiles[i] = re.compile(eval('r"^' + self._excludefiles[i] + '$"'))
 		self._excludefiles.append(re.compile(r'^.*\.tmp\.syy$'))
+		self._excludefiles.append(re.compile(r'^.*\.part\.syy$'))
 		self._re = {
 			'path'	: re.compile(r'.*\"path\":\"([^"]+)\",.*'),
 			'size'	: re.compile(r'.*\"size\":([0-9]+),.*'),
@@ -365,11 +372,11 @@ class SyncY:
 					curl.perform()
 				self._response_str = self._response_str.strip('\n')
 				http_code = curl.getinfo(pycurl.HTTP_CODE)
-				if http_code <= 404 or retrycnt == self._config['retrytimes']:
+				if http_code < 400 or retrycnt == self._config['retrytimes']:
 					return http_code
 				else:
 					retrycnt += 1
-					print('%s WARNING: Request failed,wait %ds to retry(%d). Http(%d): %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),self._config['retrydelay'],retrycnt,http_code,self._response_str))
+					print('%s WARNING: Request failed, wait %d seconds and try again(%d). Http(%d): %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), self._config['retrydelay'], retrycnt, http_code, self._response_str))
 					time.sleep(self._config['retrydelay'])
 			except pycurl.error, error:
 				errno, errstr = error
@@ -377,14 +384,89 @@ class SyncY:
 					return errno
 				else:
 					retrycnt += 1
-					print('%s WARNING: Request failed,wait %ds to retry(%d). Curl(%d): %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), self._config['retrydelay'], retrycnt, errno, errstr))
+					print('%s WARNING: Request failed, wait %d seconds and try again(%d). Curl(%d): %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), self._config['retrydelay'], retrycnt, errno, errstr))
+	def __curl_request_sd(self,URL,method,fnname,filelength):
+		curl = pycurl.Curl()
+		curl.setopt(pycurl.URL, URL)
+		curl.setopt(pycurl.SSL_VERIFYPEER, 0)
+		curl.setopt(pycurl.SSL_VERIFYHOST, 2)
+		curl.setopt(pycurl.FOLLOWLOCATION, 1)
+		curl.setopt(pycurl.CONNECTTIMEOUT, 15)
+		curl.setopt(pycurl.LOW_SPEED_LIMIT, 1)
+		curl.setopt(pycurl.LOW_SPEED_TIME, 60)
+		curl.setopt(pycurl.USERAGENT, '')
+		if self._config['maxsendspeed'] != 0:
+			curl.setopt(pycurl.MAX_SEND_SPEED_LARGE, self._config['maxsendspeed'])
+		if self._config['maxrecvspeed'] != 0:
+			curl.setopt(pycurl.MAX_RECV_SPEED_LARGE, self._config['maxrecvspeed'])
+		curl.setopt(pycurl.HEADER, 0)
+		retrycnt = 0
+		srange = 0
+		if os.path.exists(fnname):
+			srange = os.stat(fnname).st_size
+		self._response_str = ''
+		while retrycnt <= self._config['retrytimes']:
+			try:
+				curl.setopt(pycurl.OPT_FILETIME,1)
+				if filelength < srange + (self._config['blocksize'] + 1) * 1048576:
+					curl.setopt(pycurl.RANGE, str(srange) + '-' + str(filelength - 1))
+				else:
+					curl.setopt(pycurl.RANGE, str(srange) + '-' + str(srange + self._config['blocksize'] * 1048576 - 1))
+				dlFile = open(fnname + '.part.syy', 'wb')
+				curl.setopt(pycurl.WRITEDATA, dlFile)
+				curl.perform()
+				dlFile.close()
+				http_code = curl.getinfo(pycurl.HTTP_CODE)
+				if http_code == 200 or http_code == 206:	
+					with open(fnname, "ab") as dlfh:  
+						with open(fnname + '.part.syy', "rb") as ptfh:
+							fbuffer = ptfh.read(8192)
+							while fbuffer:
+								dlfh.write(fbuffer)
+								fbuffer = ptfh.read(8192)
+							ptfh.close()
+						dlfh.close()
+					os.remove(fnname + '.part.syy')
+					srange = os.stat(fnname).st_size
+					if srange == filelength:
+						filemtime = curl.getinfo(pycurl.INFO_FILETIME)
+						os.utime(fnname, (filemtime, filemtime))
+						pmeta = os.stat(os.path.dirname(fnname))
+						os.lchown(fnname,pmeta.st_uid,pmeta.st_gid)
+						return http_code
+				elif http_code < 400 or retrycnt == self._config['retrytimes']:
+					return http_code
+				else:
+					retrycnt += 1
+					print('%s WARNING: Request failed, wait %d seconds and try again(%d). Http(%d).' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), self._config['retrydelay'], retrycnt, http_code))
+					time.sleep(self._config['retrydelay'])
+			except pycurl.error, error:
+				errno, errstr = error
+				if retrycnt == self._config['retrytimes']:
+					return errno
+				else:
+					retrycnt += 1
+					print('%s WARNING: Request failed, wait %d seconds and try again(%d). Curl(%d): %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), self._config['retrydelay'], retrycnt, errno, errstr))
 	@staticmethod
-	def __rapid_md5sum(fname):  
+	def __md5sum(fname):  
 		with open(fname, "rb") as fh:  
 			m = hashlib.md5()  
 			fbuffer = fh.read(8192)
 			while fbuffer:  
 				m.update(fbuffer)
+				fbuffer = fh.read(8192)
+			fh.close()
+			cmd5 = m.hexdigest()
+		return cmd5
+	@staticmethod
+	def __rapid_checkcode(fname):  
+		with open(fname, "rb") as fh:  
+			m = hashlib.md5()  
+			fbuffer = fh.read(8192)
+			crc = 0
+			while fbuffer:  
+				m.update(fbuffer)
+				crc = zlib.crc32(fbuffer, crc) & 0xffffffff
 				fbuffer = fh.read(8192)
 			cmd5 = m.hexdigest()
 			m = hashlib.md5()
@@ -393,7 +475,7 @@ class SyncY:
 				fbuffer = fh.read(8192)
 				m.update(fbuffer)
 			fh.close()
-		return cmd5,m.hexdigest()
+		return '%x' % crc,cmd5,m.hexdigest()
 	@staticmethod
 	def __catpath(*names):
 		fullpath = '/'.join(names)
@@ -403,7 +485,7 @@ class SyncY:
 	def __get_pcs_quota(self):
 		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/quota?method=info&access_token=%s' % (self._syncytoken['access_token']),'','GET','normal')
 		if http_code != 200: 
-			sys.stderr.write('%s ERROR: Get pcs quota failed(http code:%d),%s.\n' %(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, self._response_str))
+			sys.stderr.write('%s ERROR: Get pcs quota failed(error code:%d),%s.\n' %(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, self._response_str))
 			return 1
 		m = re.findall(r'.*\"quota\":([0-9]+).*',self._response_str)
 		if m:
@@ -419,7 +501,7 @@ class SyncY:
 		uripath = quote_plus(filepath)
 		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=meta&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','GET','normal')
 		if http_code != 200:
-			sys.stderr.write('%s ERROR: Get file meta failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+			sys.stderr.write('%s ERROR: Get file meta failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
 		return 0
 	def __get_pcs_filelist(self,pcspath,startindex,endindex):
@@ -430,7 +512,7 @@ class SyncY:
 			if m and int(m[0]) == 31066:
 				return 31066,[]
 			else:
-				sys.stderr.write('%s ERROR: Get file list failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath, self._response_str))
+				sys.stderr.write('%s ERROR: Get file list failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath, self._response_str))
 				self._errorcount += 1
 				return 1,[]
 		self._response_str = self._re['getlist'].findall(self._response_str)[0]
@@ -446,15 +528,15 @@ class SyncY:
 		uripath = quote_plus(pcspath)
 		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=newcopy' % (self._syncytoken['access_token'], uripath),'','POST','upfile',filepath)
 		if http_code != 200:
-			sys.stderr.write('%s ERROR: Upload file to pcs failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+			sys.stderr.write('%s ERROR: Upload file to pcs failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
 		print('%s Upload file "%s" completed.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), filepath))
 		return 0
-	def __upload_file(self,filepath,fmtime,fsize,pcspath,fmd5,ondup):
+	def __upload_file(self,filepath,fmtime,fsize,pcspath,fmd5,ondup,lcmd5 = ''):
 		uripath = quote_plus(pcspath)
 		http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&path=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, ondup),'','POST','upfile',filepath)
 		if http_code != 200:
-			sys.stderr.write('%s ERROR: Upload file to pcs failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+			sys.stderr.write('%s ERROR: Upload file to pcs failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
 		m = self._re['size'].findall(self._response_str)
 		if m and int(m[0]) == fsize:
@@ -470,19 +552,20 @@ class SyncY:
 	def __rapid_uploadfile(self,filepath,fmtime,fsize,pcspath,fmd5,ondup):
 		if fsize <= 262144:
 			return self.__upload_file(filepath,fmtime,fsize,pcspath,fmd5,ondup)
-		contentmd5,slicemd5 = self.__rapid_md5sum(filepath)
+		crc, contentmd5, slicemd5 = self.__rapid_checkcode(filepath)
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&access_token=%s&path=%s&content-length=%d&content-md5=%s&slice-md5=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, fsize, contentmd5, slicemd5, ondup),'','POST','normal')
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=rapidupload&access_token=%s&path=%s&content-length=%d&content-md5=%s&slice-md5=%s&content-crc32=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, fsize, contentmd5, slicemd5, crc, ondup),'','POST','normal')
 		if http_code != 200:
 			m = self._re['error_code'].findall(self._response_str)
 			if m and int(m[0]) == 31079:
 				print('%s File md5 not found, upload the whole file "%s".' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), filepath))
+				print('%s httpcode:%s , md5:%s, CRC32: %s, %s.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, contentmd5, crc, self._response_str))
 				if fsize <= self._config['blocksize'] * 1048576 + 1048576:
-					return self.__upload_file(filepath,fmtime,fsize,pcspath,fmd5,ondup)
+					return self.__upload_file(filepath,fmtime,fsize,pcspath,fmd5,ondup,contentmd5)
 				else:
-					return self.__slice_uploadfile(filepath,fmtime,fsize,pcspath,fmd5,ondup)
+					return self.__slice_uploadfile(filepath,fmtime,fsize,pcspath,fmd5,ondup,contentmd5)
 			else:
-				sys.stderr.write('%s ERROR: Rapid upload file failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+				sys.stderr.write('%s ERROR: Rapid upload file failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 				return 1
 		else:
 			m = self._re['size'].findall(self._response_str)
@@ -495,11 +578,11 @@ class SyncY:
 			self.__save_data(rmd5,fmtime,fsize,fmd5)
 			print('%s Rapid upload file "%s" completed.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), filepath))
 			return 0
-	def __slice_uploadfile(self,filepath,fmtime,fsize,pcspath,fmd5,ondup):
+	def __slice_uploadfile(self,filepath,fmtime,fsize,pcspath,fmd5,ondup,lcmd5 = ''):
 		if fsize <= (self._config['blocksize'] + 1) * 1048576:
 			return self.__upload_file(filepath,fmtime,fsize,pcspath,fmd5,ondup)
 		elif fsize > self._config['blocksize'] * 1073741824:
-			sys.stderr.write('%s ERROR: File "%s" size out of setting, maxsize = blocksize * 1024M.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), filepath))
+			sys.stderr.write('%s ERROR: File "%s" size exceeds the setting, maxsize = blocksize * 1024M.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), filepath))
 			return 1
 		startblk = 0
 		upblkcount = self._config['blocksize']
@@ -537,7 +620,7 @@ class SyncY:
 			sliceRange = str(startblk * 1048576) + ':' + str(upBlockLen)
 			http_code = self.__curl_request('https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=%s&type=tmpfile' % (self._syncytoken['access_token']),sliceRange,'POST','upfile',filepath)
 			if http_code != 200:
-				sys.stderr.write('%s ERROR: Slice upload file failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+				sys.stderr.write('%s ERROR: Slice upload file failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 				return 1
 			blockmd5 = self._re['md5'].findall(self._response_str)[0]
 			ulfn = open(filepath + ".tmp.syy",'a')
@@ -552,7 +635,7 @@ class SyncY:
 		uripath = quote_plus(pcspath)
 		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=createsuperfile&access_token=%s&path=%s&ondup=%s' % (self._syncytoken['access_token'], uripath, ondup),param,'POST','normal')
 		if http_code != 200:
-			sys.stderr.write('%s ERROR: Create superfile failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
+			sys.stderr.write('%s ERROR: Create superfile failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, filepath, self._response_str))
 			return 1
 		os.remove(filepath + '.tmp.syy')
 		m = self._re['size'].findall(self._response_str)
@@ -583,9 +666,12 @@ class SyncY:
 			dlfn.write('download %s %d\n' % (rmd5, rsize))
 			dlfn.close()
 		uripath = quote_plus(pcspath)
-		http_code = self.__curl_request('https://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','GET','downfile',filepath)
+		if self._config['slicedownload'] == 'off':
+			http_code = self.__curl_request('https://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','GET','downfile',filepath)
+		else:
+			http_code = self.__curl_request_sd('https://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath), 'GET', filepath, rsize)
 		if http_code != 200 and http_code != 206:
-			sys.stderr.write('%s ERROR: Download file failed(http code:%d): "%s".\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath))
+			sys.stderr.write('%s ERROR: Download file failed(error code:%d): "%s".\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath))
 			return 1
 		fmeta = os.stat(filepath)
 		os.remove(filepath + '.tmp.syy')
@@ -600,7 +686,7 @@ class SyncY:
 		uripath = quote_plus(pcspath)
 		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=delete&access_token=%s&path=%s' % (self._syncytoken['access_token'], uripath),'','POST','normal')
 		if http_code !=200:
-			sys.stderr.write('%s ERROR: Delete remote file failed(http code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath, self._response_str))
+			sys.stderr.write('%s ERROR: Delete remote file failed(error code:%d): %s, %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), http_code, pcspath, self._response_str))
 			return 1
 		elif slient == '':
 			print('%s Delete remote file or directory "%s" completed.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), pcspath))
@@ -610,9 +696,18 @@ class SyncY:
 		uripathd = quote_plus(newpcspath)
 		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=move&access_token=%s&from=%s&to=%s' % (self._syncytoken['access_token'], uripaths, uripathd),'','POST','normal')
 		if http_code != 200:
-			sys.stderr.write('%s ERROR: Move remote file or directory "%s" to "%s" failed(http code:%d): %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), oldpcspath, newpcspath, http_code, self._response_str))
+			sys.stderr.write('%s ERROR: Move remote file or directory "%s" to "%s" failed(error code:%d): %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), oldpcspath, newpcspath, http_code, self._response_str))
 			return 1
 		print('%s Move remote file or directory "%s" to "%s" completed.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), oldpcspath, newpcspath))
+		return 0
+	def __cp_pcsfile(self,srcpcspath,destpcspath):
+		uripaths = quote_plus(srcpcspath)
+		uripathd = quote_plus(destpcspath)
+		http_code = self.__curl_request('https://pcs.baidu.com/rest/2.0/pcs/file?method=copy&access_token=%s&from=%s&to=%s' % (self._syncytoken['access_token'], uripaths, uripathd),'','POST','normal')
+		if http_code != 200:
+			sys.stderr.write('%s ERROR: Copy remote file or directory "%s" to "%s" failed(error code:%d): %s.\n' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), srcpcspath, destpcspath, http_code, self._response_str))
+			return 1
+		print('%s Copy remote file or directory "%s" to "%s" completed.' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), srcpcspath, destpcspath))
 		return 0
 	def __rm_localfile(self,delpath,slient = ''):
 		try:
@@ -718,6 +813,9 @@ class SyncY:
 		if rmd5 != '*':
 			rmd5 = rmd5.decode('hex')
 		if fmtime != '*':
+			if fmtime == -1:
+				fmtime = int(time.time())
+				print('WARNING: Invalid time, change to %d' % fmtime)
 			fmtime = struct.pack('>I',fmtime)
 		fsize = struct.pack('>I', fsize % 4294967296)
 		if self._config['datacache'] == 'on':
