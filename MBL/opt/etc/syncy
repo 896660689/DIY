@@ -1,11 +1,11 @@
 
 config syncy
-	option syncyerrlog '/var/log/SyncY.err'
-	option syncylog '/var/log/SyncY.log'
+	#option syncyerrlog '/var/log/SyncY.err'
+	#option syncylog '/var/log/SyncY.log'
 	option blocksize '10'
 	option ondup 'overwrite'
 	option datacache 'on'
-	option slicedownload 'on'
+	option slicedownload 'off'
 	option excludefiles '*/Thumbs.db;*/TEMP'
 	option listnumber '100'
 	option retrytimes '3'
