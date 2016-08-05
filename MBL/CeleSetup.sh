@@ -77,6 +77,8 @@ cd /usr/lib
 ln -s libcurl-gnutls.so.4.2.0 ln -s libcurl-gnutls.so.4
 ln -s libcurl-gnutls.so.4 ln -s libcurl-gnutls.so.3
 
+exit 0
+
 #ipkg
 #echo 'export PATH=/opt/bin:$PATH ' >> ~/.bashrc
 #source ~/.bashrc
@@ -89,3 +91,9 @@ ln -s libcurl-gnutls.so.4 ln -s libcurl-gnutls.so.3
 #echo "src armel http://ipkg.nslu2-linux.org/feeds/optware/ds101g/cross/stable" $
 #wget http://mybookworld.wikidot.com/local--files/optware/sort_dirname.tar.gz
 #tar xvfz sort_dirname.tar.gz -C /
+
+#transmission
+wget http://mybookworld.wikidot.com/local--files/optware/setup-mybooklive.sh
+sh setup-mybooklive.sh
+ipkg update
+ipkg install transmission
