@@ -23,6 +23,9 @@ chmod -R 775 appletv/
 chmod -R 664 appletv/*.*
 chmod -R 775 appletv/*.cgi
 
+apache2ctl restart
+htpasswd -c /etc/apache2/htpasswd admin
+
 #
 cd /usr/local/mediacrawler 
 ./mediacrawlerd disable
