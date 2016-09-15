@@ -23,28 +23,36 @@ chmod -R 775 appletv/
 chmod -R 664 appletv/*.*
 chmod -R 775 appletv/*.cgi
 
-apache2ctl restart
 htpasswd -c /etc/apache2/htpasswd admin
+apache2ctl restart
 
 #
 cd /usr/local/mediacrawler 
 ./mediacrawlerd disable
 
-# python
-echo "#deb http://ftp.us.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
-apt-get update
-apt-get install python2.7
-cd /usr/bin
-ln -sf python2.7 python
+#ipkg
+#echo 'export PATH=/opt/bin:$PATH ' >> ~/.bashrc
+#source ~/.bashrc
+#feed=http://ipkg.nslu2-linux.org/feeds/optware/ds101g/cross/stable
+#ipk_name=$(wget -qO- $feed/Packages | awk '/^Filename: ipkg-opt/ {print $2}')
+#wget $feed/$ipk_name
+#tar -xOvzf $ipk_name ./data.tar.gz | tar -C / -xzvf -
+#mkdir -p /opt/etc/ipkg
+#echo "src cross $feed" > /opt/etc/ipkg/feeds.conf
+#echo "src armel http://ipkg.nslu2-linux.org/feeds/optware/ds101g/cross/stable" $
+#wget http://mybookworld.wikidot.com/local--files/optware/sort_dirname.tar.gz
+#tar xvfz sort_dirname.tar.gz -C /
 
-#cd /usr/lib
-#ln -s libcurl-gnutls.so.4.2.0
-#ln -s libcurl-gnutls.so.4
-#ln -s libcurl-gnutls.so.4
-#ln -s libcurl-gnutls.so.3
+cd /opt
+wget http://mybookworld.wikidot.com/local--files/optware/setup-mybooklive.sh
+sh setup-mybooklive.sh
 
-# ffmpeg
-cd /usr/lib/powerpc-linux-gnu
+ipkg update
+#ipkg install dnsmasq
+ipkg install transmission
+
+# NO ffmpeg
+cd /opt/lib/powerpc-linux-gnu
 ln -s ibXfixes.so.3.1.0    libXfixes.so.3
 ln -s libaacplus.so.2.0.2   libaacplus.so.2
 ln -s libass.so.4.1.0    libass.so.4
@@ -77,24 +85,14 @@ ln -s libvpx.so.1.1.0    libvpx.so.1
 ln -s libvpx.so.1.1.0    libvpx.so.1.1
 ln -s libxvidcore.so.4.3   libxvidcore.so.4
 
-#ipkg
-#echo 'export PATH=/opt/bin:$PATH ' >> ~/.bashrc
-#source ~/.bashrc
-#feed=http://ipkg.nslu2-linux.org/feeds/optware/ds101g/cross/stable
-#ipk_name=$(wget -qO- $feed/Packages | awk '/^Filename: ipkg-opt/ {print $2}')
-#wget $feed/$ipk_name
-#tar -xOvzf $ipk_name ./data.tar.gz | tar -C / -xzvf -
-#mkdir -p /opt/etc/ipkg
-#echo "src cross $feed" > /opt/etc/ipkg/feeds.conf
-#echo "src armel http://ipkg.nslu2-linux.org/feeds/optware/ds101g/cross/stable" $
-#wget http://mybookworld.wikidot.com/local--files/optware/sort_dirname.tar.gz
-#tar xvfz sort_dirname.tar.gz -C /
+for ITEM in `ls /opt/lib/powerpc-linux-gnu|tr " " "?"`; do ln -s "/opt/lib/powerpc-linux-gnu/$ITEM" /usr/lib/powerpc-linux-gnu/; done
 
-cd /opt
-wget http://mybookworld.wikidot.com/local--files/optware/setup-mybooklive.sh
-sh setup-mybooklive.sh
+exit 0
 
-ipkg update
-ipkg install dnsmasq
 
-ipkg install transmission
+# NO python
+echo "#deb http://ftp.us.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
+apt-get update
+apt-get install python2.7
+cd /usr/bin
+ln -sf python2.7 python

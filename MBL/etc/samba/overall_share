@@ -11,16 +11,6 @@
   guest ok = yes
   map read only = no
 ## END ##
-## BEGIN ## sharename = Docum #
-[Docum]
-  path = /shares/Docum
-  comment = Document Share
-  invalid users =
-  valid users = admin
-  read list = 
-  write list = admin
-  map read only = no
-## END ##
 ## BEGIN ## sharename = Media #
 [Media]
   path = /shares/Media

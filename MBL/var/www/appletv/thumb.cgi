@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_LIBRARY_PATH=/opt/lib/powerpc-linux-gnu/
 PATH=/opt/bin/:$PATH
 SDIR=$(cd "${0%/*}"; pwd)
 

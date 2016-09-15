@@ -3,7 +3,7 @@
 case "$1" in
 	start)
 		echo "Starting dnsmasq daemon..."
-		/opt/sbin/dnsmasq -n -c 0 -N -C /opt/etc/dnsmasq.conf -u root
+		/opt/bin/dnsmasq -n -c 0 -N -C /opt/etc/dnsmasq.conf -u root
 		;;
 	stop)
 		echo "Shutting down dnsmasq daemon..."
