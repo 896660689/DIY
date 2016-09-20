@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Produced by Beyond Compare 3 from Scooter Software -->
+<BCState>
+	<TBcState>
+		<FirstStartup Value="False"/>
+		<FormPosStr Value="196;196;2644;1664;3;192"/>
+	</TBcState>
+	<TCheckForUpdatesState>
+		<Build Value="18981"/>
+		<CheckID Value="8796093022208"/>
+		<FormPosStr Value="937;511;1943;1216;;192"/>
+		<LastChecked Value="2014-10-20 16:46:32"/>
+	</TCheckForUpdatesState>
+	<TDirCompareState>
+		<LeftMRUSpecs>
+			<_0 Value="C:\Applications\WinRAR"/>
+		</LeftMRUSpecs>
+		<RightMRUSpecs>
+			<_0 Value="C:\Users\Yonsm\Downloads\wrar511sc.rar"/>
+		</RightMRUSpecs>
+	</TDirCompareState>
+	<THomeState>
+		<SessionType Value="TDirCompareSession"/>
+	</THomeState>
+	<TTextCompareState>
+		<LeftMRUSpecs>
+			<_0 Value="C:\Applications\WinRAR\ReadMe.txt"/>
+			<_1 Value="C:\Applications\WinRAR\WhatsNew.txt"/>
+		</LeftMRUSpecs>
+		<MRUFonts>
+			<_0 Value="Consolas;10"/>
+		</MRUFonts>
+		<RightMRUSpecs>
+			<_0 Value="C:\Users\Yonsm\Downloads\wrar511sc.rar\ReadMe.txt"/>
+			<_1 Value="C:\Users\Yonsm\Downloads\wrar511sc.rar\WhatsNew.txt"/>
+		</RightMRUSpecs>
+	</TTextCompareState>
+</BCState>

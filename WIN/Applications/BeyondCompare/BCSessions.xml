@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Produced by Beyond Compare 3 from Scooter Software -->
+<BCSessions>
+	<TSessionFolder>
+		<Items>
+			<TDirCompareSession>
+				<Filters>
+					<ExcludeHiddenSystem Value="False"/>
+				</Filters>
+				<State>
+					<ColVersionVisible Value="True"/>
+					<ColVersionWidth Value="184"/>
+					<DisplayFilter Value="[showLeftAdded, showRightAdded, showLeftChanged, showRightChanged, showConflict]"/>
+				</State>
+			</TDirCompareSession>
+			<THexCompareSession>
+				<Rules>
+					<AlignKind Value="alignNone"/>
+				</Rules>
+				<State>
+					<DisplayFilter Value="favDiff"/>
+				</State>
+			</THexCompareSession>
+			<TTextCompareSession>
+				<State>
+					<DisplayFilter Value="[showLeftMod, showRightMod, showDiffMod]"/>
+				</State>
+			</TTextCompareSession>
+		</Items>
+	</TSessionFolder>
+</BCSessions>
