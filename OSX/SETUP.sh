@@ -8,6 +8,9 @@ sudo ln -sf "$CDIR/usr/local/bin/jhead" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/ffmpeg" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/adb" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/fastboot" /usr/local/bin/
+
+sudo ln -s "$CDIR/usr/local/bin/fastboot" /usr/local/bin/
+
 sudo cp etc/hosts /etc/hosts
 
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
