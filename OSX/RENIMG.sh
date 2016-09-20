@@ -1,12 +1,6 @@
 #!/bin/sh
 CDIR=$(cd "${0%/*}"; pwd)
 PATH=$CDIR:$PATH
-SDIR=$1
-
-if [ ! -d "$SDIR" ]; then
-	echo "Usage: $0 <DIR>"
-	exit 1
-fi
 
 RENAME()
 {
@@ -17,7 +11,7 @@ RENAME()
 			RENAME "$1" "$2" "$3_" "$4" "$5" "$6"
 		else
 			echo "$5: $2 => $3.$4"
-			if [ "$6" == "" ]; then
+			if [ "$6" != "-" ]; then
 				mv "$SRC" "$DST"
 				if [[ -f "$1/.thumb.$2.jpg" ]]; then
 					echo "$5: .thumb.$2.jpg => .thumb.$3.$4.jpg"
@@ -30,9 +24,11 @@ RENAME()
 	fi
 }
 
-for FILE in `ls "$SDIR"|tr " " "?"`
-do
-	FILE=`echo $FILE|tr "?" " "`
+REFILE()
+{
+	SDIR="$1"
+	FILE="$2"
+	TEST="$3"
 	EXT=${FILE##*.}
 	EXT=`echo $EXT | tr "[:upper:]" "[:lower:]"`
 	
@@ -47,23 +43,23 @@ do
 	elif [[ "$EXT" = png ]] || [[ "$EXT" = gif ]] || [[ "$EXT" = mov ]] || [[ "$EXT" = mp4 ]] || [[ "$EXT" = avi ]]; then
 		NAME=""
 	else
-		continue
+		exit 1
 	fi
 
 	if [ -z "$NAME" ]; then
-		if [ ${#FILE} -eq 21 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == " " ]; then
+		if [ "$TEST" != "!" ] && [ ${#FILE} -eq 21 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == " " ]; then
 			echo "KEEP: $FILE"
-			continue
+			exit 2
 		else
-			if [ ${#FILE} -ge 23 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == "_" ] && [ "${FILE:13:1}" == "-" ] && [ "${FILE:16:1}" == "-" ]; then
+			if [ "$TEST" != "!" ] && [ ${#FILE} -ge 23 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == "_" ] && [ "${FILE:13:1}" == "-" ] && [ "${FILE:16:1}" == "-" ]; then
 				NAME="${FILE:0:10} ${FILE:11:2}${FILE:14:2}${FILE:17:2}"
 				RESULT="NAME"
 			else
 				if [ "${OSTYPE:0:6}" == "darwin" ]; then
 					NAME=`stat -f "%Sm" -t "%Y-%m-%d %H%M%S" "$SDIR/$FILE"`
 				else
-					DATE=`stat -c "%y" "$SDIR/$FILE" | cut -c1-33`
-					NAME=`date +%Y-%m-%d %H%M%S -d "$DATE"`
+					DATE=`stat -c "%y" "$SDIR/$FILE" | cut -c1-32`
+					NAME=`date "+%Y-%m-%d %H%M%S" -d "$DATE"`
 				fi
 				RESULT="STAT"
 			fi
@@ -71,8 +67,20 @@ do
 	fi
 
 	if [ ! -z "$NAME" ]; then
-		RENAME "$SDIR" "$FILE" "$NAME" "$EXT" "$RESULT" "$2"
+		RENAME "$SDIR" "$FILE" "$NAME" "$EXT" "$RESULT" "$TEST"
 	else
 		echo "FAIL: $FILE"
 	fi
-done
+}
+
+if [ -d "$1" ]; then
+	for FILE in `ls "$1"|tr " " "?"`
+	do
+		FILE=`echo $FILE|tr "?" " "`
+		REFILE "$1" "$FILE" "$2"
+	done
+elif [ -f "$1" ]; then
+	REFILE "`dirname "$1"`" "`basename "$1"`" "$2"
+else
+	echo "$1: <DIR|FILE> [-|!]"
+fi
