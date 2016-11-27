@@ -13,6 +13,7 @@ sudo ln -s "$CDIR/usr/local/bin/fastboot" /usr/local/bin/
 
 sudo cp etc/hosts /etc/hosts
 
+sudo spctl --master-disable
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 defaults write com.apple.iTunes DeviceBackupsDisabled -bool YES
 defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
