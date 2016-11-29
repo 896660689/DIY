@@ -1,7 +1,19 @@
 <VirtualHost *:80>
-	ServerAdmin Yonsm@msn.com
+	ServerAdmin I@YONSM.NET
 
 	DocumentRoot /var/www/
+	
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+
+	<Directory /var/www/>
+		Options Indexes ExecCGI FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
 
 	<IfModule mod_rewrite.c>
 		RewriteLog /var/log/apache2/rewrite.log
@@ -18,33 +30,18 @@
 		RewriteRule   ^/api/1.0/rest/(.*)  /Admin/webapp/htdocs/api/1.0/rest/index.php [L]
 	</IfModule>
 
-    <IfModule mod_rewrite.c>
-        # configure landing page for webdav applet
-        RewriteRule ^/LandingPage /Admin/webapp/htdocs/securityCheck.php [L,R]
-    </IfModule>
+	<IfModule mod_rewrite.c>
+		# configure landing page for webdav applet
+		RewriteRule ^/LandingPage /Admin/webapp/htdocs/securityCheck.php [L,R]
+	</IfModule>
 
 	# additional environment variables to pass to CGI and SSI
 	# any way to use DocumentRoot/DOCUMENT_ROOT???
 	SetEnv __ADMIN_API_ROOT /var/www/Admin
 
-	<Directory />
-		Options FollowSymLinks
-		AllowOverride None
-	</Directory>
-
-	<Directory /var/www/>
-		Options Indexes ExecCGI FollowSymLinks MultiViews
-		AllowOverride None
-		Order allow,deny
-		allow from all
-	</Directory>
-
+	# Media
 	<Directory /var/www/media/>
 		ReadmeName /appletv/medex.htm
-	#	RewriteEngine on
-	#	RewriteBase /
-	#	RewriteRule ^(.*\.mkv)$ /cgi-bin/mplay.py?/shares/Media/$1 [R,NC]
-	#	RewriteRule ^(.*\.mkv).(q.)$ /cgi-bin/mplay.py?/shares/Media/$1&$2 [R,NC]
 		Order deny,allow
 		Deny from all
 		AuthName "Authorization Required"
@@ -55,19 +52,19 @@
 		Satisfy Any
 	</Directory>
 
-    # block application folders from being served
-    <Directory /var/www/Admin/webapp/config/>
-            Order deny,allow
-            Deny from all
-    </Directory>
-    <Directory /var/www/Admin/webapp/classes/>
-            Order deny,allow
-            Deny from all
-    </Directory>
-    <Directory /var/www/Admin/webapp/includes/>
-            Order deny,allow
-            Deny from all
-    </Directory>
+	# block application folders from being served
+	<Directory /var/www/Admin/webapp/config/>
+		Order deny,allow
+		Deny from all
+	</Directory>
+	<Directory /var/www/Admin/webapp/classes/>
+		Order deny,allow
+		Deny from all
+	</Directory>
+	<Directory /var/www/Admin/webapp/includes/>
+		Order deny,allow
+		Deny from all
+	</Directory>
 
 	#block access protected files (php/ini files) 
 	<Directory "/var/www/Admin/webapp/htdocs/protected"> 
@@ -75,28 +72,28 @@
 		deny from all 
 	</Directory>
 	
-    <Directory "/var/www/UI/app/webroot/">
-        RewriteEngine On
-        RewriteBase /UI/
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+	<Directory "/var/www/UI/app/webroot/">
+		RewriteEngine On
+		RewriteBase /UI/
+		RewriteCond %{REQUEST_FILENAME} !-d
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 	</Directory>
 
-    # comment this line if remote WebUI access is needed (WAN access)
-    #Include /tmp/allow.conf
+	# comment this line if remote WebUI access is needed (WAN access)
+	#Include /tmp/allow.conf
     
 	<Directory "/var/www/UI">
-        RewriteEngine on
-        RewriteBase /UI/
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule    ^$ app/webroot/
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule    (.*) app/webroot/$1 [L]
+		RewriteEngine on
+		RewriteBase /UI/
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteCond %{REQUEST_FILENAME} !-d
+		RewriteRule    ^$ app/webroot/
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteCond %{REQUEST_FILENAME} !-d
+		RewriteRule    (.*) app/webroot/$1 [L]
 		php_value memory_limit 1G
-    </Directory>
+	</Directory>
         
 	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
 	<Directory "/usr/lib/cgi-bin">
@@ -104,7 +101,7 @@
 		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
 		Order allow,deny
 		Allow from all
-	 </Directory>
+	</Directory>
 
 	ErrorLog /var/log/apache2/error.log
 
@@ -124,14 +121,14 @@
 	###	Allow from 127.0.0.0/255.0.0.0 ::1/128
 	### </Directory>
 
-    ############################
-    # WebDav Extension
-    ############################
-    <IfModule dav_module>
-        Include /etc/nas/apache2/auth/alias.inc
-        Include /etc/nas/apache2/auth/require.inc
-    </IfModule>
-    ############################
+	############################
+	# WebDav Extension
+	############################
+	<IfModule dav_module>
+		Include /etc/nas/apache2/auth/alias.inc
+		Include /etc/nas/apache2/auth/require.inc
+	</IfModule>
+	############################
 
 </VirtualHost>
 
