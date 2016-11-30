@@ -1,6 +1,7 @@
 <IfModule mod_ssl.c>
-<VirtualHost 192.168.1.2:443>
+<VirtualHost 192.168.1.222:443>
 	ServerAdmin I@YONSM.NET
+	ServerName atv.qello.com
 
 	DocumentRoot /var/www/
 	
@@ -132,11 +133,14 @@
 	#   SSLCertificateFile directive is needed.
 	#   SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
 	#   SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+	
+	SSLCertificateFile       /var/www/Admin/webapp/config/qello.crt
+	SSLCertificateKeyFile    /var/www/Admin/webapp/config/qello.key
 
-	SSLCertificateFile      /var/www/Admin/webapp/config/ssl.crt
-	SSLCertificateKeyFile   /var/www/Admin/webapp/config/ssl.key
-	SSLCertificateChainFile /var/www/Admin/webapp/config/sub.class1.server.ca.pem
-	SSLCACertificateFile    /var/www/Admin/webapp/config/ca.pem
+	#SSLCertificateFile      /var/www/Admin/webapp/config/ssl.crt
+	#SSLCertificateKeyFile   /var/www/Admin/webapp/config/ssl.key
+	#SSLCertificateChainFile /var/www/Admin/webapp/config/sub.class1.server.ca.pem
+	#SSLCACertificateFile    /var/www/Admin/webapp/config/ca.pem
 
 	#   Server Certificate Chain:
 	#   Point SSLCertificateChainFile at a file containing the
