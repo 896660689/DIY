@@ -31,7 +31,7 @@ REFILE()
 	TEST="$3"
 	EXT=${FILE##*.}
 	EXT=`echo $EXT | tr "[:upper:]" "[:lower:]"`
-	
+
 	if [[ "$EXT" = jpg ]] || [[ "$EXT" = jpeg ]]; then
 		DATE=`jhead "$SDIR/$FILE" | grep "Date/Time"`
 		if [ -z "$DATE" ]; then
@@ -43,13 +43,13 @@ REFILE()
 	elif [[ "$EXT" = png ]] || [[ "$EXT" = gif ]] || [[ "$EXT" = mov ]] || [[ "$EXT" = mp4 ]] || [[ "$EXT" = avi ]]; then
 		NAME=""
 	else
-		exit 1
+		return 1
 	fi
 
 	if [ -z "$NAME" ]; then
 		if [ "$TEST" != "!" ] && [ ${#FILE} -eq 21 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == " " ]; then
 			echo "KEEP: $FILE"
-			exit 2
+			return 2
 		else
 			if [ "$TEST" != "!" ] && [ ${#FILE} -ge 23 ] && [ "${FILE:4:1}" == "-" ] && [ "${FILE:7:1}" == "-" ] && [ "${FILE:10:1}" == "_" ] && [ "${FILE:13:1}" == "-" ] && [ "${FILE:16:1}" == "-" ]; then
 				NAME="${FILE:0:10} ${FILE:11:2}${FILE:14:2}${FILE:17:2}"
