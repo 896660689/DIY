@@ -26,9 +26,27 @@ chmod -R 775 appletv/*.cgi
 htpasswd -c /etc/apache2/htpasswd admin
 apache2ctl restart
 
-#
+# Disable twonky 5
 cd /usr/local/mediacrawler 
 ./mediacrawlerd disable
+
+#/etc/init.d/twonky stop
+#mv /etc/init.d/twonky /etc/init.d/twonky.old
+#chmod -x /etc/init.d/twonky.old
+
+# Install twonky 8.3
+# https://www.usenas.com/bbs/topic.php?post=31
+# http://www.wilf.cn/post/upgrade-twonky-on-my-cloud.html
+# http://twonkyforum.com/downloads/ "Linux PowerPC glibc 2.2.5"
+# ADEA-PPPL-LBED-ALHM-KCEE-LFDF-EAWX-BBFX
+mkdir /usr/local/twonky
+cd /usr/local/twonky
+wget http://twonkyforum.com/downloads/8.3/twonky-powerpc-glibc-2.2.5-8.3.zip
+unzip twonky-powerpc-glibc-2.2.5-8.3.zip
+mkdir /var/twonky
+chmod +x twonky.sh
+/usr/local/twonky/twonky.sh restart
+ln -s /usr/local/twonky/twonky.sh /opt/etc/init.d/S99twonky
 
 #ipkg
 #echo 'export PATH=/opt/bin:$PATH ' >> ~/.bashrc
