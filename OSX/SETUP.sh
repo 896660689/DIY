@@ -2,7 +2,7 @@
 CDIR=$(cd "${0%/*}"; pwd)
 cd $CDIR
 
-sudo ln -sf "$CDIR/MMI.sh" /usr/local/bin/mmi
+sudo ln -sf "$CDIR/MMIVID.sh" /usr/local/bin/mmivid
 sudo ln -sf "$CDIR/RENIMG.sh" /usr/local/bin/renimg
 sudo ln -sf "$CDIR/LINKAPP.sh" /usr/local/bin/linkapp
 sudo ln -sf "$CDIR/usr/local/bin/jhead" /usr/local/bin/
