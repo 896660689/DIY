@@ -166,7 +166,7 @@ TorrentRendererFull.prototype =
 				// Downloading from 2 of 3 peer(s) and 2 webseed(s)
 				return [ '从',
 				         t.getPeersSendingToUs(),
-				         '个 perrs 下载 总共',
+				         '个 伙伴 下载 总共',
 				         fmt.countString('peer','peers',peer_count),
 				         'and',
 				         fmt.countString('web seed','web seeds',webseed_count),
@@ -179,7 +179,7 @@ TorrentRendererFull.prototype =
 				// Downloading from 2 webseed(s)
 				return [ '从',
 				         fmt.countString('web seed','web seeds',webseed_count),
-				         '个 perrs 下载 -',
+				         '个 伙伴 下载 -',
 				         TorrentRendererHelper.formatDL(t),
 				         TorrentRendererHelper.formatUL(t) ].join(' ');
 			}
@@ -188,7 +188,7 @@ TorrentRendererFull.prototype =
 				// Downloading from 2 of 3 peer(s)
 				return [ '从',
 				         t.getPeersSendingToUs(),
-				         '个 perrs 下载 总共',
+				         '个 伙伴 下载 总共',
 				         fmt.countString('peer','peers',peer_count),
 				         '-',
 				         TorrentRendererHelper.formatDL(t),
@@ -199,7 +199,7 @@ TorrentRendererFull.prototype =
 		if (t.isSeeding())
 			return [ '上传到',
 			         t.getPeersGettingFromUs(),
-			         'perrs 总共',
+			         '伙伴 总共',
 			         fmt.countString ('peer','peers',t.getPeersConnected()),
 			         '-',
 			         TorrentRendererHelper.formatUL(t) ].join(' ');
