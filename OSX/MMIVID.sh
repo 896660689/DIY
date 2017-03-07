@@ -2,7 +2,7 @@
 
 MakeMMIViD()
 {
-	DDIR="${1%/*}/MMIVID"
+	DDIR="${1%/*}/OUT"
 	if [ ! -d "$DDIR" ]; then
 		mkdir "$DDIR"
 	fi
@@ -32,5 +32,5 @@ fi
 if [ -f "$VDIR" ]; then
 	MakeMMIViD "$VDIR"
 else
-	find -E "$VDIR" -iregex ".*\.(mp4|mkv|mov|avi)" -maxdepth 1 | while read f ; do MakeMMIViD "$f" ; done
+	find -E "$VDIR" -iregex ".*\.(mp4|mkv|mov|avi|wmv|vob)" -maxdepth 1 | while read f ; do MakeMMIViD "$f" ; done
 fi
