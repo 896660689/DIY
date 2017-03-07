@@ -15,7 +15,7 @@ EXIT /b 0
 
 :MakeMMIViD
 	CD %~dp1
-	SET DDIR=MMIVID
+	SET DDIR=OUT
 	IF NOT EXIST "%DDIR%" MD "%DDIR%"
 
 	SET DVID=%DDIR%\%~n1.mp4
@@ -31,6 +31,6 @@ EXIT /b 0
 	)
 EXIT /b 0
 
-REM OLD_VERSION
+REM OLD_VERSION_WITHOUT_SUBTITLES_SUPPORT
 REM IF NOT EXIST OUT MD OUT
 REM FOR %%A IN (*.mp4 *.mkv *.mov *.avi *.wmv *.vob) DO ffmpeg -i "%%A" -strict -2 -acodec aac -ab 225k -ar 44.1k -ac 2 -vf crop="in_w:in_w*338/720" -s 720x338 -vcodec libx264 -crf 17 -profile:v main -level 3.1 "OUT/%%~nA.mp4"
