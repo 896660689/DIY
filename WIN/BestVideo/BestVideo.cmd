@@ -24,10 +24,10 @@ IF [%1]==[] (
 )
 
 IF EXIST %videoPath%\NUL (
-	CD /D %videoPath%
+	CD /d %videoPath%
 	FOR %%I IN (%inTypes%) DO CALL :MakeVideo "%%~nxI"
 ) ELSE (
-	CD /D %~dp1
+	CD /d %~dp1
 	CALL :MakeVideo "%~nx1"
 )
 
@@ -38,20 +38,26 @@ EXIT /b 0
 	SET audioOptions=-acodec %audioCodec% -ab %audioBitRate% -ar %audioSampleRate% -ac %audioChannel%
 	SET videoOptions=-vf crop=in_w:in_w*%videoHeight%/%videoWidth% -s %videoWidth%x%videoHeight% -vcodec libx264 -crf %videoConstantRateFactor% -profile:v %videoProfile% -level %videoLevel%
 
+	SET subtitleOptions=
 	SET subtitle=%~n1.ass
 	IF NOT EXIST "%subtitle%" SET subtitle=%~n1.srt
-	IF EXIST "%subtitle%" (
-		SET subtitleCharset=GB18030
-		CALL :IsUTF8 "%subtitle%"
-		IF ERRORLEVEL 1 SET subtitleCharset=UTF-8
-		SET subtitleOptions=-vf "subtitles=%subtitle%:original_size=%VideoWidth%x%VideoHeight%:charenc=%subtitleCharset%"
-	)
+	IF NOT EXIST "%subtitle%" GOTO :endSubtitle
+		SET charsetOption=
+		CALL :DetectCharset "%subtitle%"
+		IF NOT ERRORLEVEL 1 SET charsetOption=:charenc=GB18030
+		SET subtitleOptions=-vf "subtitles=%subtitle%:original_size=%VideoWidth%x%VideoHeight%%charsetOption%"
+		ECHO.
+		ECHO Subtitle: %subtitle%
+		ECHO Charset: %detectedCharset%
+	:endSubtitle
 
 	IF NOT EXIST %outDir% MD %outDir%
+	@ECHO ON
 	ffmpeg -i %1 -y %audioOptions% %videoOptions% %subtitleOptions% "%outDir%\%~n1.mp4"
+	@ECHO OFF
 EXIT /b 0
 
-:IsUTF8
+:DetectCharset
 	SET hexFile=%~n1.hex
 	CERTUTIL -f -encodehex %1 "%hexFile%" >NUL
 	FOR /f "usebackq delims=" %%E IN ("%hexFile%") DO (
@@ -61,6 +67,10 @@ EXIT /b 0
 	:endFor
 	DEL /Q /F "%hexFile%" >NUL 2>&1
 
-	ECHO %firstLine% | FIND "ef bb bf" >NUL && EXIT /b 1
+	ECHO %firstLine% | FIND "ef bb bf"     >NUL && SET "detectedCharset=UTF-8"     && EXIT /b 1
+	ECHO %firstLine% | FIND "ff fe 00 00"  >NUL && SET "detectedCharset=UTF-32 LE" && EXIT /b 5
+	ECHO %firstLine% | FIND "ff fe"        >NUL && SET "detectedCharset=UTF-16"    && EXIT /b 2
+	ECHO %firstLine% | FIND "fe ff 00"     >NUL && SET "detectedCharset=UTF-16 BE" && EXIT /b 3
+	ECHO %firstLine% | FIND "00 00 fe ff"  >NUL && SET "detectedCharset=UTF-32 BE" && EXIT /b 4
+	SET "detectedCharset=ASCII"
 EXIT /b 0
-
