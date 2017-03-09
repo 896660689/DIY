@@ -14,6 +14,9 @@ SET audioCodec=aac
 SET audioBitRate=225k
 SET audioSampleRate=44.1k
 
+SET audioOptions=-acodec %audioCodec% -ab %audioBitRate% -ar %audioSampleRate% -ac %audioChannel%
+SET videoOptions=-vf crop=in_w:in_w*%videoHeight%/%videoWidth% -s %videoWidth%x%videoHeight% -vcodec libx264 -crf %videoConstantRateFactor% -profile:v %videoProfile% -level %videoLevel%
+
 PATH=%PATH%;%~dp0
 PUSHD %CD%
 
@@ -35,9 +38,6 @@ POPD
 EXIT /b 0
 
 :MakeVideo
-	SET audioOptions=-acodec %audioCodec% -ab %audioBitRate% -ar %audioSampleRate% -ac %audioChannel%
-	SET videoOptions=-vf crop=in_w:in_w*%videoHeight%/%videoWidth% -s %videoWidth%x%videoHeight% -vcodec libx264 -crf %videoConstantRateFactor% -profile:v %videoProfile% -level %videoLevel%
-
 	SET subtitleOptions=
 	SET subtitle=%~n1.ass
 	IF NOT EXIST "%subtitle%" SET subtitle=%~n1.srt
@@ -45,7 +45,7 @@ EXIT /b 0
 		SET charsetOption=
 		CALL :DetectCharset "%subtitle%"
 		IF NOT ERRORLEVEL 1 SET charsetOption=:charenc=GB18030
-		SET subtitleOptions=-vf "subtitles=%subtitle%:original_size=%VideoWidth%x%VideoHeight%%charsetOption%"
+		SET subtitleOptions=-vf "subtitles=%subtitle%:original_size=%videoWidth%x%videoHeight%%charsetOption%"
 		ECHO.
 		ECHO Subtitle: %subtitle%
 		ECHO Charset: %detectedCharset%

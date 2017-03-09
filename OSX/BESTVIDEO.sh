@@ -1,36 +1,57 @@
 #!/bin/sh
 
-MakeMMIViD()
-{
-	DDIR="${1%/*}/OUT"
-	if [ ! -d "$DDIR" ]; then
-		mkdir "$DDIR"
-	fi
-	
-	FILE="${1##*/}"
-	NAME="${FILE%.*}"
-	DVID="$DDIR/$NAME.mp4"
+inTypes="mp4|mkv|mov|avi|wmv|vob"
+outDir=OUT
 
-	FOPT="-y -strict -2 -acodec aac -ab 225k -ar 44.1k -ac 2 -vf crop=in_w:in_w*338/720 -s 720x338 -vcodec libx264 -crf 17 -profile:v main -level 3.1"
-	
-	SUBT="${1%.*}.srt"
-	if [ ! -f "$SUBT" ]; then
-		SUBT="${1%.*}.ass"
-	fi
-	if [ -f "$SUBT" ]; then
-		ffmpeg -i "$1" $FOPT -vf subtitles="$SUBT":original_size=720x338 "$DVID"</dev/null
+videoWidth=720
+videoHeight=338
+videoLevel=3.1
+videoProfile=main
+videoConstantRateFactor=17
+
+audioChannel=2
+audioCodec=aac
+audioBitRate=225k
+audioSampleRate=44.1k
+
+audioOptions="-acodec $audioCodec -ab $audioBitRate -ar $audioSampleRate -ac $audioChannel"
+videoOptions="-vf crop=in_w:in_w*$videoHeight/$videoWidth -s ${videoWidth}x$videoHeight -vcodec libx264 -crf $videoConstantRateFactor -profile:v $videoProfile -level $videoLevel"
+
+CDIR=$(cd "${0%/*}"; pwd)
+PATH=$CDIR:$PATH
+pushd $PWD >/dev/null
+
+if [ $# = 0 ]; then
+	videoPath=.
+else
+	videoPath="$1"
+fi
+
+MakeVideo()
+{
+	if [ ! -d "$outDir" ]; then mkdir "$outDir"; fi
+
+	subtitle="${1%.*}.ass"
+	if [ ! -f "$subtitle" ]; then subtitle="${1%.*}.srt"; fi
+	if [ -f "$subtitle" ]; then 
+		detectedCharset=`file -b --mime-encoding "$subtitle"`
+		if [[ "$detectedCharset" =~ "utf" ]]; then charsetOption=; else charsetOption=":charenc=GB18030"; fi
+		subtitleOptions="original_size=${videoWidth}x$videoHeight$charsetOption"
+		echo "Subtitle: $subtitle"
+		echo "Charset: $detectedCharset"
+		ffmpeg -i "$1" -y $audioOptions $videoOptions -vf subtitles="$subtitle":$subtitleOptions "$outDir/${1%.*}.mp4" </dev/null
 	else
-		ffmpeg -i "$1" $FOPT "$DVID"</dev/null
+		ffmpeg -i "$1" -y $audioOptions $videoOptions "$outDir/${1%.*}.mp4" </dev/null
 	fi
 }
 
-VDIR=$1
-if [ -z "$VDIR" ]; then
-	VDIR=.
+if [ -d "$videoPath" ]; then
+	cd "$videoPath"
+	find -E . -iregex ".*\.($inTypes)" -maxdepth 1 | while read f ; do MakeVideo "${f##*/}" ; done
+else
+	cd "${videoPath%/*}"
+	MakeVideo "${videoPath##*/}"
 fi
 
-if [ -f "$VDIR" ]; then
-	MakeMMIViD "$VDIR"
-else
-	find -E "$VDIR" -iregex ".*\.(mp4|mkv|mov|avi|wmv|vob)" -maxdepth 1 | while read f ; do MakeMMIViD "$f" ; done
-fi
+popd >/dev/null
+
