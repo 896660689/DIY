@@ -15,7 +15,9 @@ SET audioBitRate=225k
 SET audioSampleRate=44.1k
 
 SET audioOptions=-acodec %audioCodec% -ab %audioBitRate% -ar %audioSampleRate% -ac %audioChannel%
-SET videoOptions=-vf crop=in_w:in_w*%videoHeight%/%videoWidth% -s %videoWidth%x%videoHeight% -vcodec libx264 -crf %videoConstantRateFactor% -profile:v %videoProfile% -level %videoLevel%
+SET videoOptions=-s %videoWidth%x%videoHeight% -vcodec libx264 -crf %videoConstantRateFactor% -profile:v %videoProfile% -level %videoLevel%
+SET cropOptions1=-vf crop=in_w:in_w*%videoHeight%/%videoWidth%
+SET cropOptions2=-vf crop=in_h*%videoWidth%/%videoHeight%:in_h
 
 PATH=%PATH%;%~dp0
 PUSHD %CD%
@@ -53,7 +55,8 @@ EXIT /b 0
 
 	IF NOT EXIST %outDir% MD %outDir%
 	@ECHO ON
-	ffmpeg -i %1 -y %audioOptions% %videoOptions% %subtitleOptions% "%outDir%\%~n1.mp4"
+	ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions1% %subtitleOptions% "%outDir%\%~n1.mp4"
+	IF %ERRORLEVEL% EQU 1 ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions2% %subtitleOptions% "%outDir%\%~n1.mp4"
 	@ECHO OFF
 EXIT /b 0
 
