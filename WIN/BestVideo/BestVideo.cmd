@@ -47,7 +47,7 @@ EXIT /b 0
 		SET charsetOption=
 		CALL :DetectCharset "%subtitle%"
 		IF NOT ERRORLEVEL 1 SET charsetOption=:charenc=GB18030
-		SET subtitleOptions=-vf "subtitles=%subtitle%:original_size=%videoWidth%x%videoHeight%%charsetOption%"
+		SET subtitleOptions=",subtitles=%subtitle%:original_size=%videoWidth%x%videoHeight%%charsetOption%"
 		ECHO.
 		ECHO Subtitle: %subtitle%
 		ECHO Charset: %detectedCharset%
@@ -55,8 +55,8 @@ EXIT /b 0
 
 	IF NOT EXIST %outDir% MD %outDir%
 	@ECHO ON
-	ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions1% %subtitleOptions% "%outDir%\%~n1.mp4"
-	IF %ERRORLEVEL% EQU 1 ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions2% %subtitleOptions% "%outDir%\%~n1.mp4"
+	ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions1%%subtitleOptions% "%outDir%\%~n1.mp4"
+	IF %ERRORLEVEL% EQU 1 ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions2%%subtitleOptions% "%outDir%\%~n1.mp4"
 	@ECHO OFF
 EXIT /b 0
 
