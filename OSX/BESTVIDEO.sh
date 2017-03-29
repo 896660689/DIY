@@ -21,7 +21,7 @@ cropOptions2="-vf crop=in_h*$videoWidth/$videoHeight:in_h"
 
 CDIR=$(cd "${0%/*}"; pwd)
 PATH=$CDIR:$PATH
-pushd $PWD >/dev/null
+pushd "$PWD" >/dev/null
 
 if [ $# = 0 ]; then
 	videoPath=.
@@ -32,6 +32,9 @@ fi
 MakeVideo()
 {
 	if [ ! -d "$outDir" ]; then mkdir "$outDir"; fi
+	
+	#ffmpeg -i "$1" -i "$MergeDir/$1" -map 0:0 -map 1:a -metadata:s:1 language=chi -map 0:1 -metadata:s:2 language=eng -c copy -shortest "$outDir/$1" </dev/null
+
 
 	subtitle="${1%.*}.ass"
 	if [ ! -f "$subtitle" ]; then subtitle="${1%.*}.srt"; fi
