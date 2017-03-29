@@ -2,9 +2,9 @@
 CDIR=$(cd "${0%/*}"; pwd)
 cd $CDIR
 
-sudo ln -sf "$CDIR/MMIVID.sh" /usr/local/bin/mmivid
-sudo ln -sf "$CDIR/RENIMG.sh" /usr/local/bin/renimg
-sudo ln -sf "$CDIR/LINKAPP.sh" /usr/local/bin/linkapp
+sudo ln -sf "$CDIR/BestVideo.sh" /usr/local/bin/bestvideo
+sudo ln -sf "$CDIR/RenImg.sh" /usr/local/bin/renimg
+sudo ln -sf "$CDIR/LinkApp.sh" /usr/local/bin/linkapp
 sudo ln -sf "$CDIR/usr/local/bin/jhead" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/ffmpeg" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/adb" /usr/local/bin/

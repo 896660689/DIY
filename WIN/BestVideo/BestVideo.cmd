@@ -55,8 +55,8 @@ EXIT /b 0
 
 	IF NOT EXIST %outDir% MD %outDir%
 	@ECHO ON
-	ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions1%%subtitleOptions% "%outDir%\%~n1.mp4"
-	IF %ERRORLEVEL% EQU 1 ffmpeg -i %1 -y %audioOptions% %videoOptions% %cropOptions2%%subtitleOptions% "%outDir%\%~n1.mp4"
+	ffmpeg -i %1 -n %audioOptions% %videoOptions% %cropOptions1%%subtitleOptions% "%outDir%\%~n1.mp4"
+	IF %ERRORLEVEL% EQU 1 ffmpeg -i %1 -n %audioOptions% %videoOptions% %cropOptions2%%subtitleOptions% "%outDir%\%~n1.mp4"
 	@ECHO OFF
 EXIT /b 0
 
