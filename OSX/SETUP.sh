@@ -16,5 +16,5 @@ sudo cp etc/hosts /etc/hosts
 
 sudo spctl --master-disable
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
-defaults write com.apple.iTunes DeviceBackupsDisabled -bool YES
+#defaults write com.apple.iTunes DeviceBackupsDisabled -bool YES
 defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
