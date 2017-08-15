@@ -3,8 +3,10 @@
 case "$1" in
 	start)
 		echo "Starting aria2c daemon..."
-		if [ ! -r /opt/etc/aria.task ]; then touch /opt/etc/aria.task; fi
-		/opt/bin/aria2c --dir=/shares/Media/Downloads/TEMP --file-allocation=falloc --event-poll=select --disable-ipv6 --enable-rpc --rpc-listen-port=6800 --rpc-listen-all --rpc-listen-all=true --rpc-allow-origin-all=true --max-concurrent-downloads=5 --max-connection-per-server=5 --continue=true --save-session=/opt/etc/aria.task --input-file=/opt/etc/aria.task --daemon=true
+		Task=/opt/etc/aria.task
+		Downloads=/shares/Media/Downloads/TEMP
+		if [ ! -r $Task ]; then touch $Task; fi
+		/opt/bin/aria2c --dir=$Downloads --file-allocation=falloc --event-poll=select --disable-ipv6 --enable-rpc --rpc-listen-port=6800 --rpc-listen-all --rpc-listen-all=true --rpc-allow-origin-all=true --max-concurrent-downloads=5 --max-connection-per-server=5 --continue=true --save-session=$Task --input-file=$Task --daemon=true
 		;;
 	stop)
 		echo "Shutting down aria2c daemon..."
