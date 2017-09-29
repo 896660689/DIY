@@ -45,12 +45,12 @@ MakeVideo()
 		echo "Charset: $detectedCharset"
 		ffmpeg -i "$1" -n $audioOptions $videoOptions $cropOptions1,subtitles="$subtitle"$charsetOption "$outDir/${1%.*}.mp4" </dev/null
 		if [ $? == 1 ]; then
-			ffmpeg -i "$1" -n $audioOptions $videoOptions $cropOptions2,subtitles="$subtitle"$charsetOption "$outDir/${1%.*}.mp4" </dev/null
+			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2,subtitles="$subtitle"$charsetOption "$outDir/${1%.*}.mp4" </dev/null
 		fi
 	else
 		ffmpeg -i "$1" -n $audioOptions $videoOptions $cropOptions1 "$outDir/${1%.*}.mp4" </dev/null
 		if [ $? == 1 ]; then
-			ffmpeg -i "$1" -n $audioOptions $videoOptions $cropOptions2 "$outDir/${1%.*}.mp4" </dev/null
+			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2 "$outDir/${1%.*}.mp4" </dev/null
 		fi
 	fi
 }

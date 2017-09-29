@@ -28,7 +28,7 @@ do
 			elif [ "$ITEM" == "NeteaseMusic.app" ]; then NAME="Netease Music"
 			elif [ "$ITEM" == "百度云同步盘.app" ]; then NAME="Baidu Cloud"
 			elif [ "$ITEM" == "钉钉.app" ]; then NAME="Ding Talk"
-			elif [ "$ITEM" == "有道词典.app" ]; then NAME="Youdao Dict"
+			elif [ "$ITEM" == "网易有道词典.app" ]; then NAME="Youdao Dict"
 			else NAME="${ITEM%*.app}"
 			fi
 			echo LINK\ "$DST_DIR/$NAME.app"
@@ -60,7 +60,11 @@ do
 					do
 						UTIL=`echo $UTIL|tr "?" " "`
 						if [[ "$UTIL" =~ ".app" ]]; then
-							DST_UTIL="$DST_DIR/$APP $UTIL"
+							if [[ "$APP" == "设计" ]]; then
+								DST_UTIL="$DST_DIR/ $UTIL"
+							else
+								DST_UTIL="$DST_DIR/$APP $UTIL"
+							fi
 							echo LINK\ "$DST_UTIL"
 							ln -s "$SRC_DIR/$ITEM/$APP/$UTIL" "$DST_UTIL"
 						fi
