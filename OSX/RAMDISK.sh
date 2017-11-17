@@ -34,7 +34,7 @@ cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist > /dev/null
 	<array>
 		<string>bash</string>
 		<string>-c</string>
-		<string>""echo $PASSWORD | sudo -S bash -c 'dev=\`hdik -drivekey system-image=yes -nomount ram://4194304\`; newfs_hfs -v RAM \$dev; mount_hfs -o union \$dev /private/tmp; chmod 041777 /private/tmp'""</string>
+		<string>""echo $PASSWORD | sudo -S bash -c 'dev=\`hdid -nomount ram://4194304\`; newfs_hfs -v RAM \$dev; mount_hfs -o union \$dev /private/tmp; chmod 041777 /private/tmp'""</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
