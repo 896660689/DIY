@@ -11,6 +11,7 @@ sudo ln -sf "$CDIR/usr/local/bin/ffmpeg" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/adb" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/fastboot" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/aria2c" /usr/local/bin/
+sudo ln -sf "$CDIR/usr/local/bin/jq" /usr/local/bin/
 
 sudo cp etc/hosts /etc/hosts
 
