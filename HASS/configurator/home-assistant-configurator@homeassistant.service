@@ -1,0 +1,12 @@
+[Unit]
+Description=Home Assistant Configurator for %i
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+User=%i
+EnvironmentFile=/etc/default/homebridge
+ExecStart=/home/homeassistant/.homeassistant/configurator/run.sh
+
+[Install]
+WantedBy=multi-user.target
