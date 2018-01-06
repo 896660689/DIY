@@ -13,3 +13,5 @@ sudo su
 touch /System/Library/Extensions && kextcache -u /
 
 # https://cn.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers
+
+# USB Serial https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/
