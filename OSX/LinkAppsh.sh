@@ -43,14 +43,10 @@ do
 			do
 				APP=`echo $APP|tr "?" " "`
 				if [[ "$APP" =~ ".app" ]]; then
-					if [ "$ITEM" == "Utilities" ]; then
-						DST_APP="$DST_DIR/$ITEM/$APP"
+					if [[ "$ITEM" =~ "Photoshop" ]]; then
+						DST_APP="$DST_DIR/Adobe Photoshop.app"
 					else
-						if [[ "$ITEM" =~ "Photoshop" ]]; then
-							DST_APP="$DST_DIR/Adobe Photoshop.app"
-						else
-							DST_APP="$DST_DIR/$APP"
-						fi
+						DST_APP="$DST_DIR/$APP"
 					fi
 					echo LINK\ "$DST_APP"
 					ln -s "$SRC_DIR/$ITEM/$APP" "$DST_APP"
