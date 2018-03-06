@@ -16,5 +16,8 @@ sudo qemu-system-arm \
 -net nic -net user \
 -net tap,ifname=tap0,script=no,downscript=no
 
+sudo passwd root
+sudo passwd --unlock root
+
 #-net nic,model=virtio,macaddr=54:54:00:55:55:55 \
 #-net tap,script=./tap-up.sh,downscript=./tap-down.sh
