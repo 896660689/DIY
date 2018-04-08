@@ -25,4 +25,4 @@ defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
 
 # Chrome + Baidu (com.google.Chrome.mobileconfig): https://github.com/acgotaku/BaiduExporter
 open ./Chrome.mobileconfig
-./RamDisk.sh
+#./RamDisk.sh
