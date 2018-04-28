@@ -61,6 +61,10 @@ WantedBy=multi-user.target
 
 EOF
 
+systemctl --system daemon-reload
+systemctl enable homeassistant
+systemctl start home-assistant
+
 # Debug
 hass
 
