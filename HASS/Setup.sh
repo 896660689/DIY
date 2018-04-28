@@ -17,7 +17,7 @@ usermod -l admin pi
 groupmod -n admin pi
 mv /home/pi /home/admin
 usermod -d /home/admin admin
-nano /etc/sudoer #admin ALL=(ALL) NOPASSWD: ALL
+echo "admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 #
 apt-get update
