@@ -1,10 +1,18 @@
 #!/bin/sh
 
+sudo raspi-config # WiFi, locals, etc...
+
 sudo passwd root
 sudo passwd --unlock root
-nano /etc/ssh/sshd_config #PermitRootLogin yes
+sudo nano /etc/ssh/sshd_config #PermitRootLogin yes
 
-#root
+sudo mkdir ~/.ssh
+exit
+
+#scp ~/.ssh/authorized_keys root@hassbian:~/.ssh/
+#ssh root@hassbian
+
+# Rename pi->admin
 usermod -l admin pi
 groupmod -n admin pi
 mv /home/pi /home/admin
