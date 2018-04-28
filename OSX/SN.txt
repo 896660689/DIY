@@ -30,8 +30,13 @@ import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe0
 +JsFormat
 +Pretty JSON
 
- "update_check": false,
- 
+	"update_check": false,
+	"translate_tabs_to_spaces": true,
+	"rulers": [80],
+	"trim_trailing_white_space_on_save": true,
+
+
+127.0.0.1       license.sublimehq.com
 
 ----- BEGIN LICENSE -----
 Bug7sec Team (www.bug7sec.org)
