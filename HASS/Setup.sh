@@ -1,15 +1,16 @@
 #!/bin/sh
 
-sudo raspi-config # WiFi, locals, etc...
+#ssh pi@hassbian
 
 sudo passwd root
 sudo passwd --unlock root
 sudo nano /etc/ssh/sshd_config #PermitRootLogin yes
-
-sudo mkdir ~/.ssh
-exit
+sudo mkdir /root/.ssh
+mkdir ~/.ssh
+sudo reboot
 
 #scp ~/.ssh/authorized_keys root@hassbian:~/.ssh/
+#scp ~/.ssh/authorized_keys pi@hassbian:~/.ssh/
 #ssh root@hassbian
 
 # Rename pi->admin
@@ -17,7 +18,10 @@ usermod -l admin pi
 groupmod -n admin pi
 mv /home/pi /home/admin
 usermod -d /home/admin admin
+passwd admin
 echo "admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+raspi-config # Hostname, WiFi, locales(en_US.UTF-8/zh_CN.GB18030/zh_CN.UTF-8), Timezone
 
 #
 apt-get update
