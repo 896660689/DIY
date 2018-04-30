@@ -6,7 +6,7 @@
 ##
 127.0.0.1	localhost
 255.255.255.255	broadcasthost
-::1             localhost 
+::1             localhost
 
 #
 127.0.0.1	cbs.aimersoft.com
@@ -14,10 +14,10 @@
 127.0.0.1	macplatform.wondershare.com
 
 #iFFmpeg
-127.0.0.1 www.iffmpeg.com
-127.0.0.1 webcluster110.one.com
-127.0.0.1 webcluster05.one.com
-127.0.0.1 webcluster06.one.com
+127.0.0.1   www.iffmpeg.com
+127.0.0.1   webcluster110.one.com
+127.0.0.1   webcluster05.one.com
+127.0.0.1   webcluster06.one.com
 
 #VideoConverter
 127.0.0.1  api.wondershare.com
@@ -29,7 +29,7 @@
 127.0.0.1  us.wondershare.com
 127.0.0.1  download.wondershare.com
 127.0.0.1  ori-myphone-download.wondershare.cc
-127.0.0.1 my.wondershare.com
-127.0.0.1 resource.wondershare.com
+127.0.0.1  my.wondershare.com
+127.0.0.1  resource.wondershare.com
 
-
+127.0.0.1  license.sublimehq.com

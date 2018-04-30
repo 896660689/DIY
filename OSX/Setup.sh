@@ -15,6 +15,7 @@ sudo ln -sf "$CDIR/usr/local/bin/jq" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/jtool" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/jurple" /usr/local/bin/
 sudo ln -sf "$CDIR/usr/local/bin/iperf" /usr/local/bin/
+sudo ln -sf "$CDIR/usr/local/bin/speedtest" /usr/local/bin/
 
 sudo cp etc/hosts /etc/hosts
 
