@@ -63,7 +63,7 @@ EOF
 
 systemctl --system daemon-reload
 systemctl enable homeassistant
-systemctl start home-assistant
+systemctl start homeassistant
 
 # Debug
 hass

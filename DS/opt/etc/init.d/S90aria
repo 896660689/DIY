@@ -1,12 +1,15 @@
 #!/bin/sh
+CDIR=$(cd "${0%/*}"; pwd)
+ETCD=`dirname "$CDIR"`
+OPTD=`dirname "$ETCD"`
 
 case "$1" in
 	start)
 		echo "Starting aria2c daemon..."
-		Task=/opt/etc/aria.task
+		Task=$ETCD/aria.task
 		Downloads=/volume1/Downloads
 		if [ ! -r $Task ]; then touch $Task; fi
-		/opt/bin/aria2c --dir=$Downloads --file-allocation=falloc --event-poll=select --disable-ipv6 --enable-rpc --rpc-listen-port=6800 --rpc-listen-all --rpc-listen-all=true --rpc-allow-origin-all=true --max-concurrent-downloads=5 --max-connection-per-server=5 --continue=true --save-session=$Task --input-file=$Task --daemon=true --user-agent="netdisk;5.3.4.5;PC;PC-Windows;5.1.2600;WindowsBaiduYunGuanJia" --split=10 --timeout=1 --max-tries=0 --max-connection-per-server=16
+		$OPTD/bin/aria2c --dir=$Downloads --file-allocation=falloc --event-poll=select --disable-ipv6 --enable-rpc --rpc-listen-port=6800 --rpc-listen-all --rpc-listen-all=true --rpc-allow-origin-all=true --max-concurrent-downloads=3 --continue=true --save-session=$Task --input-file=$Task --daemon=true --user-agent="netdisk;5.3.4.5;PC;PC-Windows;5.1.2600;WindowsBaiduYunGuanJia" --split=100 --timeout=1 --max-tries=0 --max-connection-per-server=100
 		;;
 	stop)
 		echo "Shutting down aria2c daemon..."
@@ -19,5 +22,6 @@ case "$1" in
 		;;
 	*)
 		echo $"Usage: $0 {start|stop|restart}"
+        $0 restart
 esac
 
