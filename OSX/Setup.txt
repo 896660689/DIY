@@ -19,6 +19,9 @@ FG3TU-DDX1M-084CY-MFYQX-QC0RD
 AppDelete
 AD-V845-I172-R956-B601
 
+PlistEdit
+PLEDPRO095-42E7-REKA-M4H4-1309-1405
+
 Sublime
 +Package Control: Command+Shift+P
 
