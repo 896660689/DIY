@@ -75,3 +75,42 @@ echo .> /var/log/daemon.log; echo .>~/.homeassistant/home-assistant.log; systemc
 systemctl stop homeassistant
 pip3 install --upgrade homeassistant
 systemctl start homeassistant
+
+# Samba
+apt-get install samba
+smbpasswd -a root
+
+cat <<EOF > /etc/samba/smb.conf
+[global]
+workgroup = WORKGROUP
+wins support = yes
+dns proxy = no
+log file = /var/log/samba/log.%m
+max log size = 1000
+syslog = 0
+panic action = /usr/share/samba/panic-action %d
+server role = standalone server
+passdb backend = tdbsam
+obey pam restrictions = yes
+unix password sync = yes
+passwd program = /usr/bin/passwd %u
+passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+pam password change = yes
+map to guest = bad user
+usershare allow guests = yes
+
+[homes]
+comment = Home Directories
+browseable = no
+create mask = 0700
+directory mask = 0700
+valid users = %S
+
+[hass]
+path = /root/.homeassistant
+valid users = root
+browseable = yes
+writable = yes
+
+EOF
+/etc/init.d/samba restart
