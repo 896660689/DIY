@@ -20,5 +20,7 @@ echo "/system/xbin/daemonsu --auto-daemon &" > /system/etc/init.d/99SuperSuDaemo
 chmod 755 /system/etc/init.d/99SuperSuDaemon
 
 echo "#!/system/bin/sh" > /system/etc/init.d/88HomeAssistant
-echo "curl --insecure -d '{\"state\": \"on\", \"attributes\": {\"friendly_name\": \"播放器\"}}' https://192.168.1.10:8123/api/states/device_tracker.himedia" >> /system/etc/init.d/88HomeAssistant
+echo "curl -k -d '{\"state\": \"on\", \"attributes\": {\"friendly_name\": \"播放器\"}}' https://192.168.1.10:8123/api/states/switch.himedia" >> /system/etc/init.d/88HomeAssistant
 chmod 755 /system/etc/init.d/88HomeAssistant
+
+#curl -k -d '{"state": "off", "attributes": {"friendly_name": "播放器"}}' https://192.168.1.10:8123/api/states/switch.himedia
