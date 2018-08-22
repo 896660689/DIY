@@ -19,3 +19,8 @@ opkg remove
 
 #~/.ssh
 wget -O speedtest.py https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest.py; ./speedtest.py
+
+ssh admin@router "mkdir /jffs/bin"
+scp iperf3 admin@router:/jffs/bin
+scp tcpdump admin@router:/jffs/bin
+#/jffs/bin/tcpdump -i br0 host 114.141.173.62 -w /tmp/tcpdump.cap

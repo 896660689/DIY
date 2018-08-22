@@ -61,9 +61,28 @@ WantedBy=multi-user.target
 
 EOF
 
+# Appdaemon
+cat <<EOF > /etc/systemd/system/appdaemon.service
+[Unit]
+Description=App Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/appdaemon
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
 systemctl --system daemon-reload
 systemctl enable homeassistant
 systemctl start homeassistant
+
+systemctl enable appdaemon
+systemctl start appdaemon
 
 # Debug
 hass
@@ -114,3 +133,12 @@ writable = yes
 
 EOF
 /etc/init.d/samba restart
+
+cat <<EOF >> /root/.bashrc
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+alias rmqtt='systemctl stop mosquitto; sleep 2; rm -rf /var/lib/mosquitto/mosquitto.db; systemctl start mosquitto'
+alias upha='systemctl stop homeassistant; pip3 install homeassistant --upgrade; systemctl start homeassistant'
+alias reha='systemctl restart homeassistant'
+EOF
