@@ -27,8 +27,12 @@ raspi-config # Hostname, WiFi, locales(en_US.UTF-8/zh_CN.GB18030/zh_CN.UTF-8), T
 apt-get update
 apt-get upgrade -y
 
+# for Armbian
+apt-get install python3-setuptools python3-dev
+python3 -m pip install --upgrade pip # easy_install3 -U pip
+
 # Home Assistant
-apt-get install python3 python3-pip python3-setuptools
+apt-get install python3 python3-pip
 pip3 install homeassistant
 
 # HomeKit
