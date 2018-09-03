@@ -28,7 +28,7 @@ apt-get update
 apt-get upgrade -y
 
 # Home Assistant
-apt-get install python3 python3-pip
+apt-get install python3 python3-pip python3-setuptools
 pip3 install homeassistant
 
 # HomeKit
