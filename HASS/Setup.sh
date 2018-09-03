@@ -26,12 +26,14 @@ raspi-config # Hostname, WiFi, locales(en_US.UTF-8/zh_CN.GB18030/zh_CN.UTF-8), T
 #
 apt-get update
 apt-get upgrade -y
+#apt-get autoclean
+#apt-get clean
 
 # Raspbian
 apt-get install python3 python3-pip
 
 # Armbian
-apt-get install python3-pip python3-setuptools python3-dev libffi-dev
+apt-get install python3-pip python3-dev libffi-dev # python3-setuptools
 python3 -m pip install --upgrade pip # easy_install3 -U pip
 
 # Home Assistant
