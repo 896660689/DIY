@@ -32,9 +32,11 @@ apt-get upgrade -y
 # Raspbian
 apt-get install python3 python3-pip
 
+# Install PIP 18
+python3 -m pip install --upgrade pip # Logout after install
+
 # Armbian
-apt-get install python3-pip python3-dev libffi-dev # python3-setuptools
-python3 -m pip install --upgrade pip # easy_install3 -U pip
+apt-get install python3-pip python3-dev libffi-dev python3-setuptools
 
 # Home Assistant
 pip3 install homeassistant
