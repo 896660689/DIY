@@ -2,7 +2,11 @@
 #find . -name "*.mp4" -exec ffmpeg -i {} -n -acodec aac -ab 225k -ar 44.1k -ac 2 -s 720x338 -vcodec libx264 -crf 24 -profile:v main -level 3.1 -vf "crop=in_w:in_w*338/720:y=55" OUT/{} \;
 
 inTypes="mp4|mkv|mov|avi|wmv|vob"
-outDir=OUT
+if  [ -z "$OUT" ]; then
+    outDir=OUT
+else
+    outDir=$OUT
+fi
 
 videoWidth=720
 videoHeight=338
@@ -72,4 +76,3 @@ else
 fi
 
 popd >/dev/null
-

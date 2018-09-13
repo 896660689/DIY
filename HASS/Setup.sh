@@ -43,7 +43,7 @@ pip3 install homeassistant
 
 # HomeKit
 apt-get install libavahi-compat-libdnssd-dev
-pip3 install pycryptodome #https://github.com/home-assistant/home-assistant/issues/12675
+#pip3 install pycryptodome #https://github.com/home-assistant/home-assistant/issues/12675
 
 # Mosquitto
 apt-get install mosquitto mosquitto-clients
