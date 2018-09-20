@@ -33,3 +33,6 @@ open ./Chrome.mobileconfig
 #dd bs=64k count=4k if=/dev/zero of=test conv=fdatasync
 #hdparm -Tt --direct /dev/mmcblk0p2
 #dd if=test.dbf bs=8k count=300000 of=/dev/null
+
+
+sudo chmod 666 /dev/bpf*
