@@ -128,7 +128,6 @@ ECB1BC4E D8010D5A 77BA86C8 BA7F76CC
 
 sudo chmod 644/ dev/bpf*
 
-
-SmartUtility
-Yonsm
-SU3XP-4KRB-LXT3-8NT0-VXQP-GR19
+Pacifist
+MacXMacX
+4nbSTd3G6C-2bS2quo1of-AIC
