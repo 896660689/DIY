@@ -131,3 +131,7 @@ sudo chmod 644/ dev/bpf*
 Pacifist
 MacXMacX
 4nbSTd3G6C-2bS2quo1of-AIC
+
+OmniGraffle
+Yonsm
+DSWM-YUZN-PUHA-WZMY-RNGJ-VEGR-NGJ
