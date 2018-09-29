@@ -1,5 +1,6 @@
 #!/bin/sh
-CDIR=$(cd "`dirname \"$0\"`"; pwd)
+#CDIR=$(cd "`dirname \"$0\"`"; pwd)
+CDIR="/Users/admin/Applications/Beyond Compare.app"
 rm -rf ~/Library/Application\ Support/Beyond\ Compare
 mkdir -p ~/Library/Application\ Support/Beyond\ Compare
 echo 1 > ~/Library/Application\ Support/Beyond\ Compare/IsPro
