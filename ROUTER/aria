@@ -1,0 +1,31 @@
+#!/bin/sh
+CDIR=$(cd "${0%/*}"; pwd)
+
+BDIR=$CDIR
+TASK=$CDIR/aria.task
+DDIR=/mnt/sda1/Downloads
+
+XOPT='--split=10 --max-connection-per-server=16 --timeout=1 --max-tries=0 --user-agent="netdisk;5.3.4.5;PC;PC-Windows;5.1.2600;WindowsBaiduYunGuanJia"'
+iptables -I INPUT -p tcp --dport 6800 -j ACCEPT
+iptables -I INPUT -p udp --dport 6800 -j ACCEPT
+
+case "$1" in
+	start)
+		echo "Starting aria2c daemon..."
+		if [ ! -r $TASK ]; then touch $TASK; fi
+		$BDIR/aria2c --dir=$DDIR --file-allocation=falloc --event-poll=select --disable-ipv6 --enable-rpc --rpc-listen-port=6800 --rpc-listen-all --rpc-listen-all=true --rpc-allow-origin-all=true --max-concurrent-downloads=3 --continue=true --save-session=$TASK --input-file=$TASK --daemon=true $XOPT
+		;;
+	stop)
+		echo "Shutting down aria2c daemon..."
+		killall aria2c
+		;;
+	restart)
+		$0 stop
+		sleep 2
+		$0 start
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart}"
+		$0 restart
+esac
+
