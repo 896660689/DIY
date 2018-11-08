@@ -11,7 +11,7 @@
 cd mv /opt/bin
 wget -O speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest.py; ./speedtest
 
-cat <<\EOF > ~/.bashrc
+cat << \EOF > ~/.bashrc
 #!/bin/sh
 LS_OPTIONS=-la
 PATH=$PATH:/volume1/Downloads/.opt/bin/
