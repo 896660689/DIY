@@ -20,9 +20,10 @@ sudo ln -sf "$CDIR/bin/speedtest" /usr/local/bin/
 
 sudo spctl --master-disable
 
-defaults write com.apple.iTunes DeviceBackupsDisabled -bool YES
+#defaults write com.apple.iTunes DeviceBackupsDisabled -bool YES
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
+exit
 
 # Chrome + Baidu (com.google.Chrome.mobileconfig): https://github.com/acgotaku/BaiduExporter
 #open ./Chrome.mobileconfig
