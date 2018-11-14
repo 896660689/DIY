@@ -5,7 +5,7 @@ ln -s /volume1/Downloads/.opt /opt
 
 #~/.ssh
 cd /opt/bin
-wget -O speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest.py; ./speedtest
+wget -O speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest; ./speedtest
 
 cat << \EOF > ~/.bashrc
 #!/bin/sh
