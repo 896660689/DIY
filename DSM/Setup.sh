@@ -1,7 +1,7 @@
 
 #Aria Deamon
 ln -s /volume1/Downloads/.opt /opt
-# /volume1/Downloads/.opt/etc/init.d/S90aria
+#Run as admin: /volume1/Downloads/.opt/bin/aria
 
 #~/.ssh
 cd /opt/bin
