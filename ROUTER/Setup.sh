@@ -17,6 +17,8 @@ opkg remove
 
 
 #~/.ssh
-wget -O speedtest.py https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest.py; ./speedtest.py
+cd /jffs/bin
+wget -O speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py; chmod +x speedtest;
+./speedtest
 
-#/jffs/bin/tcpdump -i br0 host 114.141.173.62 -w /tmp/tcpdump.cap
+#tcpdump -i br0 host 114.141.173.62 -w /tmp/tcpdump.cap
