@@ -1,11 +1,10 @@
 #!/bin/sh
 CDIR=$(cd "${0%/*}"; pwd)
 
-BDIR=$CDIR
-TASK=$CDIR/aria.task
 DDIR=/volume1/Downloads
+TASK=$DDIR/aria.task
 
-XOPT='--split=100 --max-connection-per-server=100 --timeout=1 --max-tries=0 --user-agent="netdisk;5.3.4.5;PC;PC-Windows;5.1.2600;WindowsBaiduYunGuanJia"'
+XOPT='--split=100 --max-connection-per-server=100 --timeout=1 --max-tries=0 --user-agent=netdisk;5.3.4.5;PC;PC-Windows;5.1.2600;WindowsBaiduYunGuanJia'
 #iptables -I INPUT -p tcp --dport 6800 -j ACCEPT
 #iptables -I INPUT -p udp --dport 6800 -j ACCEPT
 

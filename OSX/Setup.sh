@@ -12,6 +12,7 @@ sudo ln -sf "$CDIR/bin/adb" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/aapt" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/fastboot" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/aria2c" /usr/local/bin/
+sudo ln -sf "$CDIR/bin/aria" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/jq" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/jtool" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/jurple" /usr/local/bin/
