@@ -53,3 +53,9 @@ export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 export PATH=/Users/admin/Sites/flutter/bin:$PATH
 EOF
 flutter doctor
+
+
+#NTFS
+cat << \EOF | sudo tee /etc/fstab
+LABEL=WIN none ntfs rw,auto,nobrowse
+EOF

@@ -23,7 +23,7 @@ read PASSWORD
 #hdiutil attach -nomount ram://4194304
 #hdid -nomount ram://4194304
 
-cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist > /dev/null
+cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
