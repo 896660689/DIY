@@ -5,7 +5,7 @@ cd $CDIR
 sudo mkdir -p /usr/local/bin/
 sudo ln -sf "$CDIR/bin/bestvideo" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/renimg" /usr/local/bin/
-sudo ln -sf "$CDIR/bin/linkapp" /usr/local/bin/
+#sudo ln -sf "$CDIR/bin/linkapp" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/jhead" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/ffmpeg" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/adb" /usr/local/bin/
