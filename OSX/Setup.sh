@@ -55,7 +55,30 @@ EOF
 flutter doctor
 
 
-#NTFS
+#NTFS?
 cat << \EOF | sudo tee /etc/fstab
 LABEL=WIN none ntfs rw,auto,nobrowse
+EOF
+
+
+# VS Code
+cat << \EOF > "~/Library/Application Support/Code/User/settings.json"
+{
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.detectIndentation": true,
+    "editor.insertSpaces": false,
+    "editor.minimap.enabled": false,
+    "editor.useTabStops": true,
+    "html.format.wrapLineLength": 160,
+    "prettier.endOfLine": "lf",
+    "prettier.htmlWhitespaceSensitivity": "strict",
+    "prettier.printWidth": 160,
+    "prettier.semi": false,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 4,
+    "prettier.useTabs": true,
+    "python.autoComplete.addBrackets": true,
+    "python.pythonPath": "/usr/local/bin/python3",
+    "workbench.startupEditor": "newUntitledFile",
+}
 EOF
