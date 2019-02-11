@@ -1,15 +1,14 @@
 #!/bin/sh
 #CDIR=$(cd "`dirname \"$0\"`"; pwd)
-CDIR="/Users/admin/Applications/Beyond Compare.app"
+#CDIR="/Users/admin/Applications/Beyond Compare.app"
+#sudo mkdir -p /usr/local/bin/
+#sudo ln -sf "$CDIR/Contents/MacOS/bcomp" /usr/local/bin/
+
 rm -rf ~/Library/Application\ Support/Beyond\ Compare
 mkdir -p ~/Library/Application\ Support/Beyond\ Compare
 echo 1 > ~/Library/Application\ Support/Beyond\ Compare/IsPro
 touch ~/Library/Application\ Support/Beyond\ Compare/registry.dat
-#chmod 000 ~/Library/Application\ Support/Beyond\ Compare/IsPro
 chmod 000 ~/Library/Application\ Support/Beyond\ Compare/registry.dat
-
-#sudo mkdir -p /usr/local/bin/
-#sudo ln -sf "$CDIR/Contents/MacOS/bcomp" /usr/local/bin/
 
 cat << EOF | tee ~/Library/Application\ Support/Beyond\ Compare/BCCommands.xml > /dev/null
 <?xml version="1.0" encoding="UTF-8"?>
