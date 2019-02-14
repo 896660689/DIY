@@ -19,7 +19,7 @@ sudo ln -sf "$CDIR/bin/jurple" /usr/local/bin/
 sudo ln -sf "$CDIR/bin/iperf3" /usr/local/bin/
 
 sudo curl -o /usr/local/bin/speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
-sudo chmod +x speedtest;
+sudo chmod +x /usr/local/bin/speedtest
 #/usr/local/bin/speedtest
 
 sudo spctl --master-disable
