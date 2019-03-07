@@ -2,7 +2,7 @@
 
 # adb connect 192.168.1.2
 # 安装apk
-# adb shell settings put secure install_non_market_apps 1
+adb shell settings put secure install_non_market_apps 1
 # adb push com.he.ardc_2.1.1369.apk /data/local/tmp/
 # adb shell /system/bin/pm install -t /data/local/tmp/com.he.ardc_2.1.1369.apk
 # 截屏
@@ -12,7 +12,7 @@
 # 卸载应用
 # adb shell /system/bin/pm uninstall com.he.ardc
 
-#adb shell am startservice -n com.github.neithern.airaudio/.AirAudioService -e name 小讯音箱
+adb shell am startservice -n com.github.neithern.airaudio/.AirAudioService -e name 小讯音箱
 
 #!/usr/bin/env bash
 
@@ -21,3 +21,5 @@ adb shell /system/bin/pm install -r -t /sdcard/app-release.apk
 
 # Start parameters: -e name ServerName -e output system/music -e channel left/right/stereo
 adb shell am startservice -n com.github.neithern.airaudio/.AirAudioService
+
+brew install scrcpy
