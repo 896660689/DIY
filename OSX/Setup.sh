@@ -85,3 +85,7 @@ cat << \EOF > "~/Library/Application Support/Code/User/settings.json"
     "workbench.startupEditor": "newUntitledFile",
 }
 EOF
+
+# NTFS mount
+#sudo umount /dev/disk3s1
+#sudo mount_ntfs -o rw,nobrowse /dev/disk3s1 /Volumes/USBD
