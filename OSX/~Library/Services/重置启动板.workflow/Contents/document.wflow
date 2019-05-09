@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>444.39</string>
+	<string>444.42</string>
 	<key>AMApplicationVersion</key>
 	<string>2.9</string>
 	<key>AMDocumentVersion</key>
@@ -59,16 +59,18 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>plutil -replace LSUIElement -bool false ~/Applications/Utilities/网络/V2RayX.app/Contents/Info.plist
-plutil -replace LSUIElement -bool false ~/Applications/Utilities/网络/ShadowsocksX-NG.app/Contents/Info.plist
+					<string>if [ -d ~/Applications/Utilities/维护/AppDelete.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/维护/AppDelete.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/网络/V2RayX.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/网络/V2RayX.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/网络/ShadowsocksX-NG.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/网络/ShadowsocksX-NG.app/Contents/Info.plist; fi
 
 defaults write com.apple.dock ResetLaunchPad -bool true
 killall Dock
 
 
 sleep 5
-plutil -replace LSUIElement -bool true ~/Applications/Utilities/网络/V2RayX.app/Contents/Info.plist
-plutil -replace LSUIElement -bool true ~/Applications/Utilities/网络/ShadowsocksX-NG.app/Contents/Info.plist
+if [ -d ~/Applications/Utilities/维护/AppDelete.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/维护/AppDelete.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/网络/V2RayX.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/网络/V2RayX.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/网络/ShadowsocksX-NG.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/网络/ShadowsocksX-NG.app/Contents/Info.plist; fi
 </string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
@@ -182,7 +184,7 @@ plutil -replace LSUIElement -bool true ~/Applications/Utilities/网络/Shadowsoc
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>494.000000:565.000000</string>
+				<string>489.500000:305.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
