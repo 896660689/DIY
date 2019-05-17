@@ -23,6 +23,6 @@ wget -O speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/s
 
 #tcpdump -i br0 host 114.141.173.62 -w /tmp/tcpdump.cap
 
-# 0 18 * * 1-5 /usr/bin/wifi5on
-# 0 8 * * 6,0 /usr/bin/wifi5on
-# 59 23 * * * /usr/bin/wifi5off
+0 18 * * 1-5 /usr/bin/wifi5on
+0 8 * * 6,0 /usr/bin/wifi5on
+59 23 * * * /usr/bin/wifi5off
