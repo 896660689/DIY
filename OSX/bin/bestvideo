@@ -2,11 +2,6 @@
 #find . -name "*.mp4" -exec ffmpeg -i {} -n -acodec aac -ab 225k -ar 44.1k -ac 2 -s 720x338 -vcodec libx264 -crf 24 -profile:v main -level 3.1 -vf "crop=in_w:in_w*338/720:y=55" OUT/{} \;
 
 inTypes="mp4|mkv|mov|avi|wmv|vob"
-if  [ -z "$OUT" ]; then
-    outDir=OUT
-else
-    outDir=$OUT
-fi
 
 videoWidth=720
 videoHeight=338
@@ -26,20 +21,26 @@ cropOptions2="-vf crop=in_h*$videoWidth/$videoHeight:in_h"
 
 CDIR=$(cd "${0%/*}"; pwd)
 PATH=$CDIR:$PATH
-pushd "$PWD" >/dev/null
 
 if [ $# = 0 ]; then
 	videoPath=.
+    outDir=OUT
+elif [ $# = 1 ]; then
+	videoPath="$1"
+    outDir=OUT
 else
 	videoPath="$1"
+	outDir="$2"
 fi
+echo Process $videoPath to $outDir
 
 MakeVideo()
 {
-	if [ ! -d "$outDir" ]; then mkdir "$outDir"; fi
-    if [ -f "$outDir/${1%.*}.mp4" ]; then return; fi
-
-	#ffmpeg -i "$1" -i "$MergeDir/$1" -map 0:0 -map 1:a -metadata:s:1 language=chi -map 0:1 -metadata:s:2 language=eng -c copy -shortest "$outDir/$1" </dev/null
+	inFile="${1##*/}"
+	outPath="$2/${inFile%.*}.mp4"
+    if [ -f "$outPath" ]; then return; fi
+	if [ ! -d "$2" ]; then mkdir "$2"; fi
+	#ffmpeg -i "$1" -i "$MergeDir/$1" -map 0:0 -map 1:a -metadata:s:1 language=chi -map 0:1 -metadata:s:2 language=eng -c copy -shortest "$2/$1" </dev/null
 
 	subtitle="${1%.*}.ass"
 	if [ ! -f "$subtitle" ]; then subtitle="${1%.*}.srt"; fi
@@ -48,31 +49,23 @@ MakeVideo()
 		if [[ "$detectedCharset" =~ "utf" ]]; then charsetOption=; else charsetOption=":charenc=GB18030"; fi
 		echo "Subtitle: $subtitle"
 		echo "Charset: $detectedCharset"
-		ffmpeg -i "$1" $audioOptions $videoOptions $cropOptions1,subtitles="$subtitle"$charsetOption "$outDir/${1%.*}.mp4" </dev/null
+		ffmpeg -i "$1" $audioOptions $videoOptions $cropOptions1,subtitles="$subtitle"$charsetOption "$outPath" </dev/null
 		if [ $? == 1 ]; then
-			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2,subtitles="$subtitle"$charsetOption "$outDir/${1%.*}.mp4" </dev/null
+			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2,subtitles="$subtitle"$charsetOption "$outPath" </dev/null
 		fi
 	else
-		ffmpeg -i "$1" $audioOptions $videoOptions $cropOptions1 "$outDir/${1%.*}.mp4" </dev/null
+		ffmpeg -i "$1" $audioOptions $videoOptions $cropOptions1 "$outPath" </dev/null
 		if [ $? == 1 ]; then
-			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2 "$outDir/${1%.*}.mp4" </dev/null
+			ffmpeg -y -i "$1" $audioOptions $videoOptions $cropOptions2 "$outPath" </dev/null
 		fi
 	fi
 }
 
 if [ -d "$videoPath" ]; then
-	cd "$videoPath"
-	find -E . -iregex ".*\.($inTypes)" -maxdepth 1 | while read f ; do MakeVideo "${f##*/}" ; done
+	find -E "$videoPath" -iregex ".*\.($inTypes)" | while read FN ; do RD="${FN#$videoPath/}" ; MakeVideo "$FN" "$outDir/${RD%/*}" ; done
 	if [ ! -d "$outDir" ]; then
-		cd "$CDIR"
-		find -E . -iregex ".*\.($inTypes)" -maxdepth 1 | while read f ; do MakeVideo "${f##*/}" ; done
-		if [ ! -d "$outDir" ]; then
-			echo "Usage: $0 [FILE|DIR|] - Empty means ./ or $CDIR"
-		fi
+		echo "Usage: $0 [FILE|DIR] [OUT]"
 	fi
 else
-	if [[ "${videoPath}" =~ "/" ]]; then cd "${videoPath%/*}"; fi
-	MakeVideo "${videoPath##*/}"
+	MakeVideo "$videoPath" "$outDir"
 fi
-
-popd >/dev/null
