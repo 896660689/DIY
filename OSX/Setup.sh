@@ -29,6 +29,8 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
 exit
 
+cd ~/Downloads && git clone https://github.com/CodeTips/BaiduNetdiskPlugin-macOS.git && ./BaiduNetdiskPlugin-macOS/Other/Install.sh
+
 # Chrome + Baidu (com.google.Chrome.mobileconfig): https://github.com/acgotaku/BaiduExporter
 #open ./Chrome.mobileconfig
 
