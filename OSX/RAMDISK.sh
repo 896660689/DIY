@@ -5,7 +5,7 @@ case "$1" in
         GSIZE=$1
         ;;
     '')
-        GSIZE=2
+        GSIZE=4
         ;;
     *)
         echo 'RAMDISK Utility for macOS 10.13-10.14\n'
