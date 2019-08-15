@@ -44,7 +44,7 @@ cd ~/Downloads && git clone https://github.com/CodeTips/BaiduNetdiskPlugin-macOS
 
 # WireShark
 #sudo chmod 666 /dev/bpf*
-
+ssh root@localhost 'tcpdump -s 0 -U -n -i en0 -w - not port 22' | ~/Applications/Utilities/网络/Wireshark.app/Contents/MacOS/Wireshark -k -i -
 #aria
 #aria2c -c -s10 -k1M -x16 --enable-rpc=false -o "xxxx" --header "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36" --header "Referer: https://pan.baidu.com/disk/home" --header "Cookie: BDUSS=; pcsett=" "https://d.pcs.baidu.com/"
 
