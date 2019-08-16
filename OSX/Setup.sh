@@ -42,7 +42,7 @@ ssh root@localhost 'tcpdump -s 0 -U -n -i en0 -w - not port 22' | wireshark -k -
 aria2c -c -s10 -k1M -x16 --enable-rpc=false -o "xxxx" --header "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36" --header "Referer: https://pan.baidu.com/disk/home" --header "Cookie: BDUSS=; pcsett=" "https://d.pcs.baidu.com/"
 
 # Chrome + Baidu https://github.com/acgotaku/BaiduExporter
-cd ~/Downloads && git clone https://github.com/CodeTips/BaiduNetdiskPlugin-macOS.git && ./BaiduNetdiskPlugin-macOS/Other/Install.sh
+cd /tmp && git clone https://github.com/CodeTips/BaiduNetdiskPlugin-macOS.git && cd /tmp/BaiduNetdiskPlugin-macOS/Other && sed 's/\/Applications/\/Users\/admin\/Applications/g' Install.sh | sh
 
 # Flutter
 cd /Users/admin/Sites
