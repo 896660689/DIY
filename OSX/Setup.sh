@@ -13,6 +13,12 @@ defaults write com.apple.iTunes AutomaticDeviceBackupsDisabled -bool true
 
 exit
 
+# Brew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew update
+#brew install telnet
+#pip3 install esptool
+
 # Speed Test
 cd $CDIR/bin
 curl -o ./speedtest https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
