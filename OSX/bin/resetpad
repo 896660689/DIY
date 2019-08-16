@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ -d ~/Applications/Utilities/AppDelete.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/AppDelete.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/V2RayX.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/V2RayX.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/ShadowsocksX-NG.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/ShadowsocksX-NG.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/AliLangX.app ]; then plutil -replace LSUIElement -bool false ~/Applications/Utilities/AliLangX.app/Contents/Info.plist; fi
+
+defaults write com.apple.dock ResetLaunchPad -bool true
+killall Dock
+
+sleep 5
+
+if [ -d ~/Applications/Utilities/AppDelete.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/AppDelete.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/V2RayX.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/V2RayX.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/ShadowsocksX-NG.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/ShadowsocksX-NG.app/Contents/Info.plist; fi
+if [ -d ~/Applications/Utilities/AliLangX.app ]; then plutil -replace LSUIElement -bool true ~/Applications/Utilities/AliLangX.app/Contents/Info.plist; fi
