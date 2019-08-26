@@ -37,10 +37,9 @@ sudo umount /dev/disk3s1
 sudo mount_ntfs -o rw,nobrowse /dev/disk3s1 /Volumes/USBD
 
 # Disk Speed Test
-dd bs=64k count=4k if=/dev/zero of=test conv=fsync
-dd bs=64k count=4k if=/dev/zero of=test conv=fdatasync
+dd bs=1M count=1024 if=/dev/zero of=test.dat oflag=direct
+dd if=test.dat bs=1M count=1024 of=/dev/null iflag=direct
 hdparm -Tt --direct /dev/mmcblk0p2
-dd if=test.dbf bs=8k count=300000 of=/dev/null
 
 # WireShark
 #sudo chmod 666 /dev/bpf*
