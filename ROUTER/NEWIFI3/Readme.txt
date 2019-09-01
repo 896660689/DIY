@@ -44,3 +44,6 @@ Breed 方法如下：
     b) 执行 newifid2 unlock 即可解锁，此时依然可以恢复为未解锁状态：
         如果要恢复成未解锁状态，执行 newifid2 lock 即可
         如果想永久解锁，执行 newifid2 unlock permanently。这样会解锁并锁定 OTP，不能再次修改。
+
+hdparm -S 180 /dev/sda
+hdparm -B 127 /dev/sda
