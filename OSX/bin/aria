@@ -1,32 +1,38 @@
 #!/bin/sh
 
-start_aria()
+start()
 {
-	SDIR=$(cd "${0%/*}"; pwd)
 	if [ ! -z "$1" ]; then
-		CDIR="$1"
+		DDIR="$1"
+	elif [ -d ~/Downloads ]; then
+		DDIR=~/Downloads
 	else
-		CDIR=$(pwd)
+		DDIR=$(pwd)
 	fi
-	TASK=$CDIR/aria.task
+
+	TASK=$DDIR/aria.task
 	if [ ! -r $TASK ]; then touch $TASK; fi
+
+	ARIA2C=$(cd "${0%/*}"; pwd)/aria2c
+	if [ ! -x $ARIA2C ]; then ARIA2C=aria2c; fi
+
 	#XOPT='--split=100 --max-connection-per-server=100 --timeout=1 --max-tries=0 --user-agent=netdisk;6.0.0.12;PC;PC-Windows;10.0.16299;WindowsBaiduYunGuanJia'
-	$SDIR/aria2c -D -d $CDIR -c -i $TASK --save-session=$TASK --enable-rpc --rpc-listen-all --rpc-allow-origin-all --file-allocation=falloc --disable-ipv6
+	$ARIA2C -D -d $DDIR -c -i $TASK --save-session=$TASK --enable-rpc --rpc-listen-all --rpc-allow-origin-all --file-allocation=falloc --disable-ipv6
 }
 
 case "$1" in
 	start)
 		echo "Starting aria2c daemon..."
-		start_aria $2
+		start $2
 		;;
 	stop)
 		echo "Shutting down aria2c daemon..."
 		killall aria2c
 		;;
 	restart)
-		$0 stop
+		killall aria2c
 		sleep 1
-		$0 start $2
+		start $2
 		;;
 	'')
 		echo "Aria2c helper by Yonsm"
@@ -35,6 +41,6 @@ case "$1" in
 		echo
 		;;
 	*)
-		start_aria $1
+		start $1
 		;;
 esac
