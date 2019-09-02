@@ -10,8 +10,8 @@ start_aria()
 	fi
 	TASK=$CDIR/aria.task
 	if [ ! -r $TASK ]; then touch $TASK; fi
-	XOPT='--split=100 --max-connection-per-server=100 --timeout=1 --max-tries=0 --user-agent=netdisk;6.0.0.12;PC;PC-Windows;10.0.16299;WindowsBaiduYunGuanJia'
-	$SDIR/aria2c -D -d $CDIR -c -i $TASK --save-session=$TASK --enable-rpc --rpc-listen-all --rpc-allow-origin-all --file-allocation=falloc --disable-ipv6 $XOPT
+	#XOPT='--split=100 --max-connection-per-server=100 --timeout=1 --max-tries=0 --user-agent=netdisk;6.0.0.12;PC;PC-Windows;10.0.16299;WindowsBaiduYunGuanJia'
+	$SDIR/aria2c -D -d $CDIR -c -i $TASK --save-session=$TASK --enable-rpc --rpc-listen-all --rpc-allow-origin-all --file-allocation=falloc --disable-ipv6
 }
 
 case "$1" in
@@ -27,6 +27,12 @@ case "$1" in
 		$0 stop
 		sleep 1
 		$0 start $2
+		;;
+	'')
+		echo "Aria2c helper by Yonsm"
+		echo
+		echo "Usage: $0 [start|stop|restart|<DIR>] [DIR]"
+		echo
 		;;
 	*)
 		start_aria $1
