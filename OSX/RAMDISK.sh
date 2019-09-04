@@ -21,20 +21,16 @@ case "$2" in
     hdik)
         HDCMD="hdik -drivekey system-image=yes -nomount ram://$(($GSIZE*1024*1024*2))"
         ;;
-    hdiutil)
-        HDCMD="hdiutil attach -nomount ram://$(($GSIZE*1024*1024*2))"
+    hdid)
+        HDCMD="hdid -nomount ram://$(($GSIZE*1024*1024*2))"
         ;;
     *)
-        HDCMD="hdid -nomount ram://$(($GSIZE*1024*1024*2))"
+        HDCMD="hdiutil attach -nomount ram://$(($GSIZE*1024*1024*2))"
         ;;
 esac
 
-RAMCMD="dev=\`$HDCMD\`; newfs_hfs -v RAM \$dev; mount_hfs -o union \$dev /private/tmp; chmod 041777 /private/tmp"
+RAMCMD="diskutil erasevolume HFS+ RAM \`$HDCMD\`"
 echo "$RAMCMD"
-echo
-
-echo -n "Enter root password:"
-read PASSWORD
 echo
 
 cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist
@@ -46,9 +42,9 @@ cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist
 	<string>net.yonsm.ramdisk</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>bash</string>
-		<string>-c</string>
-		<string>""echo $PASSWORD | sudo -S bash -c '$RAMCMD'""</string>
+        <string>bash</string>
+        <string>-c</string>
+        <string>$RAMCMD</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
@@ -57,24 +53,16 @@ cat << EOF | sudo tee /Library/LaunchAgents/net.yonsm.ramdisk.plist
 EOF
 echo
 
-#
-if [ -d ~/Library/Caches/Google ] ; then
-    echo Link ~/Library/Caches/Google to /private/tmp
-    rm -rf ~/Library/Caches/Google
-    ln -s /private/tmp ~/Library/Caches/Google
-fi
+RAMDIR=/Volumes/RAM
+defaults write com.google.Chrome DiskCacheDir $RAMDIR/Chrome
+defaults write com.apple.dt.Xcode IDECustomDerivedDataLocation $RAMDIR
+defaults write com.apple.dt.Xcode IDECustomDistributionArchivesLocation $RAMDIR
 
-if [ -d ~/Library/Developer/Xcode ] ; then
-    echo Link ~/Library/Developer/Xcode/DerivedData to /private/tmp
-    rm -rf ~/Library/Developer/Xcode/DerivedData
-    ln -s /private/tmp ~/Library/Developer/Xcode/DerivedData
-fi
-
-if [ -d ~/Library/Developer/Xcode ] ; then
-    echo Link ~/Library/Developer/Xcode/Archives to /private/tmp
-    rm -rf ~/Library/Developer/Xcode/Archives
-    ln -s /private/tmp ~/Library/Developer/Xcode/Archives
-fi
+# if [ -d ~/Library/Caches/Google ] ; then
+#     echo Link ~/Library/Caches/Google to /private/tmp
+#     rm -rf ~/Library/Caches/Google
+#     ln -s /private/tmp ~/Library/Caches/Google
+# fi
 
 echo
 echo "Done, please reboot to take effect. Enjoy:)"
