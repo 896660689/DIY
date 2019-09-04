@@ -37,8 +37,8 @@ sudo umount /dev/disk3s1
 sudo mount_ntfs -o rw,nobrowse /dev/disk3s1 /Volumes/USBD
 
 # Disk Speed Test
-dd bs=1024k count=1024 if=/dev/zero of=test.dat oflag=direct
-dd if=test.dat bs=1024k count=1024 of=/dev/null iflag=direct
+dd bs=1024k count=512 if=/dev/zero of=test.dat oflag=direct
+dd bs=1024k count=512 if=test.dat of=/dev/null iflag=direct
 hdparm -Tt --direct /dev/mmcblk0p2
 
 # WireShark
