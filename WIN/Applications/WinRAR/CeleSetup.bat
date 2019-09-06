@@ -1,4 +1,0 @@
-REM @ECHO OFF
-CD /D %~DP0
-
-WinRAR.EXE
