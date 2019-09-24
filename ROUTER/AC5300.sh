@@ -4,33 +4,6 @@ nvram set "dhcp_staticlist=<00:90:4C:1E:50:50>192.168.1.2>Router2"
 nvram commit
 exit 0
 
-addthis.com
-alphacoders.com
-amazonaws.com
-americanexpress.com
-bandwagonhost.com
-bitbucket.org
-brew.sh
-cloudfront.net
-hdroute.org
-ip138.com
-lithium.com
-pypi.org
-python.org
-pythonhosted.org
-files.pythonhosted.org
-twitter.com
-wikipedia.org
-yonsm.net
-code.org
-scratch.mit.edu
-debian.org
-github.com
-api.github.com
-codeload.github.com
-raw.githubusercontent.com
-homebrew.bintray.com
-
 #
 nvram set https_crt_save=0
 nvram unset https_crt_file
