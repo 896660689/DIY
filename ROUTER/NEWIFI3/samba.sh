@@ -4,8 +4,8 @@
 cat <<\EOF > /etc/smb.conf
 [global]
 workgroup = WORKGROUP
-netbios name = Router
-server string = Router
+netbios name = Store
+server string = Storage
 local master = yes
 os level = 128
 name resolve order = lmhosts hosts bcast
