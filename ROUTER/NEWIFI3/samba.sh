@@ -27,10 +27,8 @@ max protocol = SMB2
 passdb backend = smbpasswd
 security = USER
 username level = 8
-guest ok = no
 map to guest = Bad User
 hide unreadable = yes
-writeable = yes
 directory mode = 0777
 create mask = 0777
 force directory mode = 0777
@@ -62,21 +60,16 @@ write list = admin
 
 [Pictures]
 path = /media/STORE/Pictures
-public = no
-writable = yes
-valid users = admin
+write list = admin
 
 [Movies]
 path = /media/STORE/Movies
-public = no
-writable = yes
-valid users = admin
+write list = admin
 
 [Documents]
 path = /media/STORE/Documents
-public = no
-writable = yes
-valid users = admin
+write list = admin
+
 EOF
 
 killall -9 nmbd
